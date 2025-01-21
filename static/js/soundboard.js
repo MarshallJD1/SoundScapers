@@ -1,6 +1,19 @@
 document.addEventListener('DOMContentLoaded', () => {
     const workspace = document.getElementById('workspace');
     const cards = document.querySelectorAll('.card');
+    const soundboardFiles = {
+        track1: "{% static 'audio/fireloop.wav' %}",
+        track2: "{% static 'audio/indoor_raining.wav' %}",
+        track3: "{% static 'audio/outdoor_raining.wav' %}",
+        track4: "{% static 'audio/river.wav' %}",
+        track5: "{% static 'audio/spooky_forrest.wav' %}",
+        track6: "{% static 'audio/wind.wav' %}",
+    };
+    
+    const players = new Tone.Players(soundboardFiles, () => {
+        console.log("All audio files loaded!");
+    }).toDestination();
+    
 
     if (!workspace) {
         console.error("Workspace element not found");
