@@ -165,8 +165,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         const trackElement = document.createElement('div');
         trackElement.classList.add('track','audio-track', 'bg-secondary', 'p-3', 'mb-2', 'rounded');
         trackElement.dataset.fileUrl = audioFile;
+
+        // extract file name from the url
+        const fileName= audioFile.split('/').pop().split('.')[0];
+
         trackElement.innerHTML = `
-        <h6 class="track-name">${audioFile.split('/').pop()}</h6>
+        <h6 class="track-name">${fileName}</h6>
         <button class="btn btn-primary btn-sm play-btn">Play</button>
         <button class="btn btn-danger btn-sm stop-btn">Stop</button>
 
@@ -509,7 +513,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             mixer.appendChild(trackElement);
     
             // Set track properties
-            trackElement.querySelector('.track-name').textContent = trackData.name;
+            trackElement.querySelector('.track-name').value = trackData.name;
             trackElement.querySelector('.volume-slider').value = trackData.volume;
             trackElement.querySelector('.pan-slider').value = trackData.pan;
             trackElement.querySelector('.loop-start').value = trackData.loop_start;
