@@ -1,19 +1,10 @@
-document.addEventListener('DOMContentLoaded', () => {
+
+document.addEventListener('DOMContentLoaded', async () => {
     const workspace = document.getElementById('workspace');
     const cards = document.querySelectorAll('.card');
-    const soundboardFiles = {
-        track1: "{% static 'audio/fireloop.wav' %}",
-        track2: "{% static 'audio/indoor_raining.wav' %}",
-        track3: "{% static 'audio/outdoor_raining.wav' %}",
-        track4: "{% static 'audio/river.wav' %}",
-        track5: "{% static 'audio/spooky_forrest.wav' %}",
-        track6: "{% static 'audio/wind.wav' %}",
-    };
-    
-    const players = new Tone.Players(soundboardFiles, () => {
-        console.log("All audio files loaded!");
-    }).toDestination();
-    
+    const saveButton = document.getElementById('save-soundboard-btn');
+
+
 
     if (!workspace) {
         console.error("Workspace element not found");
@@ -29,8 +20,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Add a start button for Tone.js interaction
     const startButton = document.getElementById('start-audio-btn');
-    
-    
+
+
 
     startButton.addEventListener('click', async () => {
         // Start Tone.js only when the button is clicked
@@ -39,6 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log('Tone.js audio context started');
             startButton.style.display = 'none';  // Hide the start button after starting
         }
+        Tone.start();
     });
 
     const masterChannel = new Tone.Channel().toDestination(); // Master channel
@@ -170,9 +162,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Create the track element
     function createTrackElement(audioFile, player, trackChannel) {
-    const trackElement = document.createElement('div');
-    trackElement.classList.add('audio-track', 'bg-secondary', 'p-3', 'mb-2', 'rounded');
-    trackElement.innerHTML = `
+        const trackElement = document.createElement('div');
+        trackElement.classList.add('audio-track', 'bg-secondary', 'p-3', 'mb-2', 'rounded');
+        trackElement.innerHTML = `
         <h6>${audioFile.split('/').pop()}</h6>
         <button class="btn btn-primary btn-sm play-btn">Play</button>
         <button class="btn btn-danger btn-sm stop-btn">Stop</button>
@@ -211,150 +203,202 @@ document.addEventListener('DOMContentLoaded', () => {
 
         <!-- Waveform Canvas -->
         <canvas class="waveform-canvas" width="400" height="100"></canvas>
-        <div class="time-tooltip"></div>
-    `;
+        <div class="time-tooltip"></div>    
+        `;
 
-    // Initialize the waveform
-    const waveformCanvas = trackElement.querySelector('.waveform-canvas');
-    const timeTooltip = trackElement.querySelector('.time-tooltip');
-    const waveform = new Tone.Waveform(2048);
-    player.connect(waveform);
+        // Initialize the waveform
+        const waveformCanvas = trackElement.querySelector('.waveform-canvas');
+        const timeTooltip = trackElement.querySelector('.time-tooltip');
+        const waveform = new Tone.Waveform(2048);
+        player.connect(waveform);
 
-    // Draw the waveform on the canvas
-    function drawWaveform() {
-        const ctx = waveformCanvas.getContext('2d');
-        const width = waveformCanvas.width;
-        const height = waveformCanvas.height;
-        const waveformData = waveform.getValue();
-        ctx.clearRect(0, 0, width, height);
-        ctx.beginPath();
-        ctx.moveTo(0, height / 2);
-        waveformData.forEach((value, index) => {
-            const x = (index / waveformData.length) * width;
-            const y = (value * height) / 2 + height / 2;
-            ctx.lineTo(x, y);
+        // Draw the waveform on the canvas
+        function drawWaveform() {
+            const ctx = waveformCanvas.getContext('2d');
+            const width = waveformCanvas.width;
+            const height = waveformCanvas.height;
+            const waveformData = waveform.getValue();
+            ctx.clearRect(0, 0, width, height);
+            ctx.beginPath();
+            ctx.moveTo(0, height / 2);
+            waveformData.forEach((value, index) => {
+                const x = (index / waveformData.length) * width;
+                const y = (value * height) / 2 + height / 2;
+                ctx.lineTo(x, y);
+            });
+            ctx.stroke();
+        }
+
+        drawWaveform();
+
+        // Hover effect to show current time at mouse position
+        waveformCanvas.addEventListener('mousemove', (e) => {
+            const rect = waveformCanvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const duration = player.buffer.duration;
+            const timeAtX = (x / waveformCanvas.width) * duration;
+
+            // Display the time in the tooltip
+            timeTooltip.textContent = `${timeAtX.toFixed(2)}s`;
+            timeTooltip.style.left = `${x + 10}px`;  // Position tooltip just beside the cursor
+            timeTooltip.style.top = `${rect.top - 30}px`;  // Position above the waveform
         });
-        ctx.stroke();
+
+        waveformCanvas.addEventListener('mouseleave', () => {
+            timeTooltip.textContent = ''; // Hide the tooltip when mouse leaves
+        });
+
+        // Lock/Unlock button functionality
+        let isLocked = false;
+        let loopStartSet = false;
+
+        trackElement.querySelector('.lock-unlock-btn').addEventListener('click', () => {
+            isLocked = !isLocked; // Toggle lock state
+            trackElement.querySelector('.lock-unlock-btn').textContent = isLocked ? 'Unlock Loop Points' : 'Lock Loop Points';
+        });
+
+        // Handle click on the waveform to set loop points
+        waveformCanvas.addEventListener('click', (e) => {
+            if (isLocked) return;  // If locked, do nothing
+
+            const rect = waveformCanvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const duration = player.buffer.duration;
+            const timeAtX = (x / waveformCanvas.width) * duration;
+
+            if (!loopStartSet) {
+                // Set loop start time
+                trackElement.querySelector('.loop-start').value = timeAtX.toFixed(2);
+                loopStartSet = true;
+            } else {
+                // Set loop end time
+                trackElement.querySelector('.loop-end').value = timeAtX.toFixed(2);
+                loopStartSet = false;
+            }
+        });
+
+        // Volume slider functionality
+        const volumeSlider = trackElement.querySelector('.volume-slider');
+        volumeSlider.addEventListener('input', (e) => {
+            const masterVolume = masterChannel.volume.value; // Get current master volume
+            const trackVolume = parseFloat(e.target.value); // Track slider value
+            trackChannel.volume.value = trackVolume + masterVolume; // Combine volumes
+            console.log(`Track volume set to: ${trackChannel.volume.value}`);
+        });
+
+        // Play button functionality
+        trackElement.querySelector('.play-btn').addEventListener('click', () => {
+            // Apply settings
+            player.loopStart = parseFloat(trackElement.querySelector('.loop-start').value);
+            player.loopEnd = parseFloat(trackElement.querySelector('.loop-end').value);
+            player.reverse = trackElement.querySelector('.reverse-checkbox').checked;
+            trackChannel.mute = trackElement.querySelector('.mute-checkbox').checked;
+
+            const volume = parseFloat(trackElement.querySelector('.volume-slider').value);
+            trackChannel.volume.value = volume;
+
+            // Start playing
+            player.start();
+        });
+
+        trackElement.querySelector('.active-checkbox').addEventListener('change', (e) => {
+            trackChannel.mute = !e.target.checked;
+        });
+
+        // Stop button functionality
+        trackElement.querySelector('.stop-btn').addEventListener('click', () => {
+            player.stop();
+        });
+
+        // Pan slider functionality
+        trackElement.querySelector('.pan-slider').addEventListener('input', (e) => {
+            trackChannel.pan.value = e.target.value;
+        });
+
+        // Pitch slider functionality
+        trackElement.querySelector('.pitch-slider').addEventListener('input', (e) => {
+            player.playbackRate = e.target.value;
+        });
+
+        // Loop start/end functionality
+        trackElement.querySelector('.loop-start').addEventListener('input', (e) => {
+            player.loopStart = parseFloat(e.target.value);
+        });
+
+        trackElement.querySelector('.loop-end').addEventListener('input', (e) => {
+            player.loopEnd = parseFloat(e.target.value);
+        });
+
+        trackElement.querySelector('.loop-checkbox').addEventListener('change', (e) => {
+            player.loop = e.target.checked;
+        });
+
+        // Remove button functionality
+        trackElement.querySelector('.remove-btn').addEventListener('click', () => {
+            player.stop();
+            trackChannel.dispose();
+            trackElement.remove();
+        });
+
+        return trackElement;
+
     }
 
-    drawWaveform();
 
-    // Hover effect to show current time at mouse position
-    waveformCanvas.addEventListener('mousemove', (e) => {
-        const rect = waveformCanvas.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const duration = player.buffer.duration;
-        const timeAtX = (x / waveformCanvas.width) * duration;
 
-        // Display the time in the tooltip
-        timeTooltip.textContent = `${timeAtX.toFixed(2)}s`;
-        timeTooltip.style.left = `${x + 10}px`;  // Position tooltip just beside the cursor
-        timeTooltip.style.top = `${rect.top - 30}px`;  // Position above the waveform
-    });
 
-    waveformCanvas.addEventListener('mouseleave', () => {
-        timeTooltip.textContent = ''; // Hide the tooltip when mouse leaves
-    });
+    document.getElementById('save-soundboard-btn').addEventListener('click', async () => {       // Gather soundboard data from the UI
+        const soundboardData = {
+            title: document.querySelector('#title')?.value || 'Untitled Soundboard',
+            description: document.querySelector('#description')?.value || '',
+            privacy: document.querySelector('#privacy-toggle')?.value || 'public',
+            tracks: []
+        };
 
-    // Lock/Unlock button functionality
-    let isLocked = false;
-    let loopStartSet = false;
+        // Loop through the tracks in the workspace to gather data
+        const trackElements = document.querySelectorAll('.track'); // Replace with the actual class for your tracks
+        trackElements.forEach(track => {
+            const trackData = {
+                audio_file_id: track.dataset.audioFileId, // Assuming this is stored in a data attribute
+                volume: parseFloat(track.querySelector('.track-volume').value), // Adjust selectors as needed
+                pan: parseFloat(track.querySelector('.track-pan').value),
+                loop_start: parseFloat(track.querySelector('.track-loop-start').value) || 0.0,
+                loop_end: parseFloat(track.querySelector('.track-loop-end').value) || null,
+                loop: track.querySelector('.track-loop').checked,
+                active: track.querySelector('.track-active').checked,
+                reversed: track.querySelector('.track-reversed').checked,
+            };
+            soundboardData.tracks.push(trackData);
+        });
 
-    trackElement.querySelector('.lock-unlock-btn').addEventListener('click', () => {
-        isLocked = !isLocked; // Toggle lock state
-        trackElement.querySelector('.lock-unlock-btn').textContent = isLocked ? 'Unlock Loop Points' : 'Lock Loop Points';
-    });
+        console.log('Saving Soundboard:', soundboardData); // Debugging output
 
-    // Handle click on the waveform to set loop points
-    waveformCanvas.addEventListener('click', (e) => {
-        if (isLocked) return;  // If locked, do nothing
+        try {
+            // Send the data to the backend using fetch
+            const response = await fetch('/save_soundboard/', { // Replace with your actual URL
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCSRFToken() // Django requires a CSRF token
+                },
+                body: JSON.stringify(soundboardData)
+            });
 
-        const rect = waveformCanvas.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const duration = player.buffer.duration;
-        const timeAtX = (x / waveformCanvas.width) * duration;
-
-        if (!loopStartSet) {
-            // Set loop start time
-            trackElement.querySelector('.loop-start').value = timeAtX.toFixed(2);
-            loopStartSet = true;
-        } else {
-            // Set loop end time
-            trackElement.querySelector('.loop-end').value = timeAtX.toFixed(2);
-            loopStartSet = false;
+            if (response.ok) {
+                const responseData = await response.json();
+                alert(`Soundboard saved successfully! ID: ${responseData.soundboard_id}`);
+            } else {
+                console.error('Failed to save soundboard:', response.status, response.statusText);
+                alert('Failed to save soundboard. Please try again.');
+            }
+        } catch (error) {
+            console.error('Error saving soundboard:', error);
+            alert('An error occurred while saving the soundboard. Please try again.');
         }
     });
 
-    // Volume slider functionality
-    const volumeSlider = trackElement.querySelector('.volume-slider');
-    volumeSlider.addEventListener('input', (e) => {
-        const masterVolume = masterChannel.volume.value; // Get current master volume
-        const trackVolume = parseFloat(e.target.value); // Track slider value
-        trackChannel.volume.value = trackVolume + masterVolume; // Combine volumes
-        console.log(`Track volume set to: ${trackChannel.volume.value}`);
-    });
-
-    // Play button functionality
-    trackElement.querySelector('.play-btn').addEventListener('click', () => {
-        // Apply settings
-        player.loopStart = parseFloat(trackElement.querySelector('.loop-start').value);
-        player.loopEnd = parseFloat(trackElement.querySelector('.loop-end').value);
-        player.reverse = trackElement.querySelector('.reverse-checkbox').checked;
-        trackChannel.mute = trackElement.querySelector('.mute-checkbox').checked;
-
-        const volume = parseFloat(trackElement.querySelector('.volume-slider').value);
-        trackChannel.volume.value = volume;
-
-        // Start playing
-        player.start();
-    });
-
-    trackElement.querySelector('.active-checkbox').addEventListener('change', (e) => {
-        trackChannel.mute = !e.target.checked;
-    });
-
-    // Stop button functionality
-    trackElement.querySelector('.stop-btn').addEventListener('click', () => {
-        player.stop();
-    });
-
-    // Pan slider functionality
-    trackElement.querySelector('.pan-slider').addEventListener('input', (e) => {
-        trackChannel.pan.value = e.target.value;
-    });
-
-    // Pitch slider functionality
-    trackElement.querySelector('.pitch-slider').addEventListener('input', (e) => {
-        player.playbackRate = e.target.value;
-    });
-
-    // Loop start/end functionality
-    trackElement.querySelector('.loop-start').addEventListener('input', (e) => {
-        player.loopStart = parseFloat(e.target.value);
-    });
-
-    trackElement.querySelector('.loop-end').addEventListener('input', (e) => {
-        player.loopEnd = parseFloat(e.target.value);
-    });
-
-    trackElement.querySelector('.loop-checkbox').addEventListener('change', (e) => {
-        player.loop = e.target.checked;
-    });
-
-    // Remove button functionality
-    trackElement.querySelector('.remove-btn').addEventListener('click', () => {
-        player.stop();
-        trackChannel.dispose();
-        trackElement.remove();
-    });
-
-    return trackElement;
-}
 
 
-    document.getElementById('save-soundboard-btn').addEventListener('click', () => {
-        alert('Save functionality will be implemented here.');
-    });
 
     document.getElementById('save-draft-btn').addEventListener('click', () => {
         alert('Save as Draft functionality will be implemented here.');
@@ -367,4 +411,13 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('post-to-feed-btn').addEventListener('click', () => {
         alert('Post to Feed functionality will be implemented here.');
     });
+
+
+
+
+    // Function to get CSRF token from cookies (required for Django POST requests)
+    function getCSRFToken() {
+        const csrfTokenMatch = document.cookie.match(/csrftoken=([\w-]+)/);
+        return csrfTokenMatch ? csrfTokenMatch[1] : '';
+    }
 });

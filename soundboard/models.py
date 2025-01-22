@@ -38,3 +38,12 @@ class Track(models.Model):
     def __str__(self):
         return f"Track: {self.name} (Soundboard: {self.soundboard.title})"
 
+
+class AudioFile(models.Model):
+    name = models.CharField(max_length=255)
+    file_url = models.CharField(max_length=255)
+
+    def __str__(self):
+        return self.name
+
+
