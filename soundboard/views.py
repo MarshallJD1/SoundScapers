@@ -80,6 +80,33 @@ def save_soundboard(request):
     return JsonResponse({"error": "Invalid request method"}, status=405)
 
 
+def load_soundboard(request, soundboard_id):
+    soundboard = Soundboard.objects.get(id=soundboard_id)
+    tracks = soundboard.tracks.all()
+
+    response_data = {
+        "title": soundboard.title,
+        "description": soundboard.description,
+        "privacy": soundboard.privacy,
+        "tracks:": [
+            {
+                "audio_file_id" : track.audio_file.id,
+                "audio_file_name" : track.audio_file.name,
+                "file_url": track.audio_file.file_url,
+                "volume": track.volume,
+                "pan": track.pan,
+                "loop_start": track.loop_start,
+                "loop_end": track.loop_end,
+                "loop": track.loop,
+                "active": track.active,
+                "reversed": track.reversed,
+            }
+            for track in tracks
+        ]
+    }
+    return JsonResponse(response_data)
+
+
 @csrf_exempt
 def get_audio_files(request):
     try:
