@@ -2,10 +2,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     const workspace = document.getElementById('workspace');
     const cards = document.querySelectorAll('.card');
     let soundboardsFetched = false;
-    let currentSoundboardId = null;
+    let currentSoundboardId = document.getElementById('soundboard_id').value;
+    
 
-        // Function to get CSRF token from cookies (required for Django POST requests)
-     function getCSRFToken() {
+    // Function to get CSRF token from cookies (required for Django POST requests)
+    function getCSRFToken() {
         let cookieValue = null;
         if (document.cookie && document.cookie !== '') {
             const cookies = document.cookie.split(';');
@@ -179,11 +180,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Create the track element
     function createTrackElement(audioFile, player, trackChannel) {
         const trackElement = document.createElement('div');
-        trackElement.classList.add('track','audio-track', 'bg-secondary', 'p-3', 'mb-2', 'rounded');
+        trackElement.classList.add('track', 'audio-track', 'bg-secondary', 'p-3', 'mb-2', 'rounded');
         trackElement.dataset.fileUrl = audioFile;
 
         // extract file name from the url
-        const fileName= audioFile.split('/').pop().split('.')[0];
+        const fileName = audioFile.split('/').pop().split('.')[0];
 
         trackElement.innerHTML = `
         <h6 class="track-name">${fileName}</h6>
@@ -366,11 +367,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
 
-    // Add a hidden input field to store the soundboord ID
-    const soundboardIdInput = document.createElement('input');
-    soundboardIdInput.type = 'hidden';
-    soundboardIdInput.id = 'soundboard_id';
-    document.body.appendChild(soundboardIdInput);
+    // get hidden input field for soundboard id
+    
+    
 
 
 
@@ -380,11 +379,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         const description = document.getElementById('description').value;
         const privacy = document.getElementById('privacy-toggle').value;
         const soundboardId = document.getElementById('soundboard_id').value;
-        const tracks = []; // Collect track data
-
-        // Verify that the .track query selector is correctly identifying the track elements
-        const trackElements = document.querySelectorAll('.track');
-        console.log('Track elements:', trackElements);
+        console.log('Saving soundboard with ID:', soundboardId); // Added this line
+        const tracks = [];
 
         document.querySelectorAll('.track').forEach(trackElement => {
             const trackData = {
@@ -406,12 +402,14 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         console.log('Collected tracks data:', tracks);
 
+    
+
         const soundboardData = {
             id: soundboardId,
             title,
             description,
             privacy,
-            tracks
+            tracks,
         };
 
         const url = soundboardId ? `/update_soundboard/${soundboardId}/` : '/save_soundboard/';
@@ -420,25 +418,31 @@ document.addEventListener('DOMContentLoaded', async () => {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-CSRFToken': getCSRFToken()
+                'X-CSRFToken': getCSRFToken(),
             },
-            body: JSON.stringify(soundboardData)
+            body: JSON.stringify(soundboardData),
         })
-        .then(response => response.json())
-        .then(data => {
-            if (data.status === 'success') {
-                alert('Soundboard saved successfully!');
-                if (!soundboardId) {
-                    document.getElementById('soundboard_id').value = data.soundboard_id;
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to save soundboard.');
                 }
-            } else {
-                alert('Failed to save soundboard.');
-            }
-        })
-        .catch(error => console.error('Error saving soundboard:', error));
+                return response.json();
+            })
+            .then(data => {
+                if (data.status === 'success') {
+                    alert('Soundboard saved successfully!');
+                    if (!soundboardId) {
+                        document.getElementById('soundboard_id').value = data.soundboard_id;
+                        currentSoundboardId = data.soundboard_id;
+                    }
+                } else {
+                    alert('Failed to save soundboard.');
+                }
+            })
+            .catch(error => console.error('Error saving soundboard:', error));
     });
 
-    
+
 
 
 
@@ -477,7 +481,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             return;
         }
 
-        // Fetch the selected soundboard
+        // Fetch the selected soundboard data
         fetch(`/load_soundboard/${soundboardId}/`)
             .then(response => {
                 if (!response.ok) {
@@ -488,11 +492,15 @@ document.addEventListener('DOMContentLoaded', async () => {
             .then(soundboardData => {
                 // Update the UI with the loaded soundboard
                 updateUIWithSoundboard(soundboardData);
+                document.getElementById('soundboard_id').value = soundboardData.id; // Store the soundboard ID
             })
-            .catch(error => console.error('Error loading soundboard:', error));
+            .catch(error => {
+                console.error('Error loading soundboard:', error);
+                alert('An error occurred while loading the soundboard.');
+            });
     });
 
-    
+
 
 
 
@@ -504,69 +512,76 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 
 
-   
+    /**
+  * Updates the UI with the loaded soundboard data.
+  * @param {Object} soundboardData - The soundboard data from the backend.
+  */
 
     // Function to update the UI with the loaded soundboard data
     function updateUIWithSoundboard(soundboardData) {
-        console.log('Soundboard data:', soundboardData); // Log the soundboard data for debugging
+        console.log('Soundboard data:', soundboardData);
 
-        //Set the soundboard ID in the hidden input field
-         document.getElementById('soundboard_id').value = soundboardData.id;
-         currentSoundboardId = soundboardData.id;
-         console.log('Current soundboard ID set to:', currentSoundboardId);
-        
-        // Clear the workspace
+        if (!soundboardData) {
+            alert('No soundboard data available.');
+            return;
+        }
+
+        // Set the soundboard ID
+        document.getElementById('soundboard_id').value = soundboardData.id;
+        currentSoundboardId = soundboardData.id;
+        console.log('Current soundboard ID set to:', currentSoundboardId);
+
+        // Clear the workspace and dispose of any existing players/channels
         const workspace = document.getElementById('workspace');
-        workspace.innerHTML = ''; // Clear the workspace
-    
+        workspace.innerHTML = ''; // Clear previous content
+
         // Create mixer if it doesn't exist
         let mixer = document.querySelector('.mixer');
         if (!mixer) {
             mixer = createMixer();
             workspace.appendChild(mixer);
         }
-    
-        // Update the title and description
-        document.getElementById('title').value = soundboardData.title;
-        document.getElementById('description').value = soundboardData.description;
-        document.getElementById('privacy-toggle').value = soundboardData.privacy;
-    
-        // Add tracks to the workspace
-        if (Array.isArray(soundboardData.tracks)) {
-        soundboardData.tracks.forEach(trackData => {
-            const player = new Tone.Player({
-                url: trackData.file_url,
-                loop: trackData.loop,
-                volume: trackData.volume,
-            });
-    
-            const trackChannel = new Tone.Channel().connect(busChannel); // route to bus channel
-            player.connect(trackChannel); // Connect the player to the track channel
-    
-            const trackElement = createTrackElement(trackData.file_url, player, trackChannel);
-            mixer.appendChild(trackElement);
-    
-            // Set track properties
-            trackElement.querySelector('.track-name').value = trackData.name;
-            trackElement.querySelector('.volume-slider').value = trackData.volume;
-            trackElement.querySelector('.pan-slider').value = trackData.pan;
-            trackElement.querySelector('.loop-start').value = trackData.loop_start;
-            trackElement.querySelector('.loop-end').value = trackData.loop_end;
-            trackElement.querySelector('.loop-checkbox').checked = trackData.loop;
-            trackElement.querySelector('.active-checkbox').checked = trackData.active;
-            trackElement.querySelector('.reverse-checkbox').checked = trackData.reversed;
-            trackElement.querySelector('.pitch-slider').value = trackData.pitch;
-            trackElement.querySelector('.solo-checkbox').checked = trackData.solo;
-            trackElement.querySelector('.mute-checkbox').checked = trackData.mute;
-        });
-    } else {
-        console.log('No tracks to display');
-        // Optionally, display a message in the UI
-        const noTracksMessage = document.createElement('p');
-        noTracksMessage.textContent = 'No tracks available in this soundboard.';
-        workspace.appendChild(noTracksMessage);
-    }
 
+        // Update title, description, and privacy
+        document.getElementById('title').value = soundboardData.title || '';
+        document.getElementById('description').value = soundboardData.description || '';
+        document.getElementById('privacy-toggle').value = soundboardData.privacy || 'public';
+
+        // Add tracks to the mixer
+        if (Array.isArray(soundboardData.tracks) && soundboardData.tracks.length > 0) {
+            soundboardData.tracks.forEach(trackData => {
+                const player = new Tone.Player({
+                    url: trackData.file_url || '',
+                    loop: !!trackData.loop,
+                    volume: parseFloat(trackData.volume) || 0,
+                });
+
+                const trackChannel = new Tone.Channel().connect(busChannel);
+                player.connect(trackChannel);
+
+                const trackElement = createTrackElement(trackData.file_url, player, trackChannel);
+                mixer.appendChild(trackElement);
+
+                // Set track properties
+                trackElement.querySelector('.track-name').value = trackData.name || '';
+                trackElement.querySelector('.volume-slider').value = parseFloat(trackData.volume) || 0;
+                trackElement.querySelector('.pan-slider').value = parseFloat(trackData.pan) || 0;
+                trackElement.querySelector('.loop-start').value = parseFloat(trackData.loop_start) || 0;
+                trackElement.querySelector('.loop-end').value = parseFloat(trackData.loop_end) || 0;
+                trackElement.querySelector('.loop-checkbox').checked = !!trackData.loop;
+                trackElement.querySelector('.active-checkbox').checked = !!trackData.active;
+                trackElement.querySelector('.reverse-checkbox').checked = !!trackData.reversed;
+                trackElement.querySelector('.pitch-slider').value = parseFloat(trackData.pitch) || 1;
+                trackElement.querySelector('.solo-checkbox').checked = !!trackData.solo;
+                trackElement.querySelector('.mute-checkbox').checked = !!trackData.mute;
+            });
+        } else {
+            console.log('No tracks to display.');
+            const noTracksMessage = document.createElement('p');
+            noTracksMessage.textContent = 'No tracks available in this soundboard.';
+            workspace.appendChild(noTracksMessage);
+        }
+    }
 
     // functionality for user to delete a soundboard
     document.getElementById('delete-soundboard-btn').addEventListener('click', () => {
@@ -588,22 +603,24 @@ document.addEventListener('DOMContentLoaded', async () => {
                     'X-CSRFToken': getCSRFToken()
                 }
             })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status === 'success') {
-                    alert('Soundboard deleted successfully');
-                    document.getElementById('soundboard_id').value = '';
-                    // Clear the UI
-                    document.getElementById('workspace').innerHTML = '';
-                    document.getElementById('title').value = '';
-                    document.getElementById('description').value = '';
-                    document.getElementById('privacy-toggle').value = 'private';
-                } else {
-                    alert('Failed to delete soundboard');
-                }
-            })
-            .catch(error => console.error('Error deleting soundboard:', error));
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        alert('Soundboard deleted successfully');
+                        document.getElementById('soundboard_id').value = '';
+                        currentSoundboardId = null;
+                        // Clear the UI
+                        document.getElementById('workspace').innerHTML = '';
+                        document.getElementById('title').value = '';
+                        document.getElementById('description').value = '';
+                        document.getElementById('privacy-toggle').value = 'private';
+                    } else {
+                        alert('Failed to delete soundboard');
+                    }
+                })
+                .catch(error => console.error('Error deleting soundboard:', error));
         }
     });
-}});
+
+});
 

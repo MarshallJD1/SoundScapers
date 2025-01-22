@@ -30,38 +30,47 @@ def soundboard_view(request, soundboard_id):
     soundboard = get_object_or_404(Soundboard, id=soundboard_id)
     return render(request, 'soundboard_index.html', {'soundboard_id': soundboard.id})
 
+def save_tracks(soundboard, tracks_data):
+    """
+    Helper function to save tracks for a given soundboard.
+    """
+    soundboard.tracks.all().delete()  # Clear existing tracks
+    for track_data in tracks_data:
+        Track.objects.create(
+            soundboard=soundboard,
+            file_url=track_data['file_url'],
+            loop=track_data['loop'],
+            volume=track_data['volume'],
+            pan=track_data['pan'],
+            loop_start=track_data['loop_start'],
+            loop_end=track_data['loop_end'],
+            active=track_data['active'],
+            reversed=track_data['reversed'],
+            pitch=track_data['pitch'],
+            solo=track_data['solo'],
+            mute=track_data['mute']
+        )
+
 @csrf_exempt
 @login_required
 def save_soundboard(request):
     if request.method == "POST":
         data = json.loads(request.body)
-        soundboard = Soundboard(
-            title=data['title'],
-            description=data['description'],
-            privacy=data['privacy'],
-            user=request.user  # Set the user field to the current user
-        )
-        soundboard.save()
 
-        # Save tracks
-        for track_data in data['tracks']:
-            track = Track(
-                soundboard=soundboard,
-                file_url=track_data['file_url'],
-                loop=track_data['loop'],
-                volume=track_data['volume'],
-                pan=track_data['pan'],
-                loop_start=track_data['loop_start'],
-                loop_end=track_data['loop_end'],
-                active=track_data['active'],
-                reversed=track_data['reversed'],
-                pitch=track_data['pitch'],
-                solo=track_data['solo'],
-                mute=track_data['mute']
-            )
-            track.save()
+        # Create a new soundboard
+        soundboard = Soundboard.objects.create(
+            id=data.get('soundboard_id'),
+            title=data.get['title'],
+            description=data.get['description'],
+            privacy=data.get['privacy'],
+            user=request.user
+        )
+
+        # Save associated tracks
+        save_tracks(soundboard, data['tracks'])
 
         return JsonResponse({'status': 'success', 'soundboard_id': soundboard.id})
+    
     return JsonResponse({'status': 'error'}, status=400)
 
 
@@ -72,6 +81,7 @@ def load_soundboard(request, soundboard_id):
         tracks = Track.objects.filter(soundboard=soundboard)
 
         soundboard_data = {
+            'id': soundboard.id,
             'title': soundboard.title,
             'description': soundboard.description,
             'privacy': soundboard.privacy,
@@ -126,35 +136,21 @@ def get_audio_files(request):
 def update_soundboard(request, soundboard_id):
     if request.method == "POST":
         data = json.loads(request.body)
+
+        # Get the soundboard to update (ensures it belongs to the current user)
         soundboard = get_object_or_404(Soundboard, id=soundboard_id, user=request.user)
 
-        soundboard.title = data['title']
-        soundboard.description = data['description']
-        soundboard.privacy = data['privacy']
+        # Update soundboard fields
+        soundboard.title = data.get('title', soundboard.title)
+        soundboard.description = data.get('description', soundboard.description)
+        soundboard.privacy = data.get('privacy', soundboard.privacy)
         soundboard.save()
 
-        # Delete existing tracks
-        soundboard.tracks.all().delete()
+        # Update associated tracks
+        save_tracks(soundboard, data['tracks'])
 
-        # Save new tracks
-        for track_data in data['tracks']:
-            track = Track(
-                soundboard=soundboard,
-                file_url=track_data['file_url'],
-                loop=track_data['loop'],
-                volume=track_data['volume'],
-                pan=track_data['pan'],
-                loop_start=track_data['loop_start'],
-                loop_end=track_data['loop_end'],
-                active=track_data['active'],
-                reversed=track_data['reversed'],
-                pitch=track_data['pitch'],
-                solo=track_data['solo'],
-                mute=track_data['mute']
-            )
-            track.save()
-
-        return JsonResponse({'status': 'success'})
+        return JsonResponse({'status': 'success', 'soundboard_id': soundboard.id})
+    
     return JsonResponse({'status': 'error'}, status=400)
 
 
