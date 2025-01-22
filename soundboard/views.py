@@ -6,6 +6,7 @@ import json
 from .models import Soundboard, Track
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
 import logging
 
 logger = logging.getLogger(__name__)
@@ -15,15 +16,28 @@ class HomePage(TemplateView):
     """
     Displays home page
     """
-    template_name = 'base.html'
+    template_name = 'index.html'
+    @method_decorator(login_required)
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        soundboards = Soundboard.objects.filter(user=self.request.user)
+        logger.info(f"fetched soundboards: {soundboards}")
+        context['soundboards'] = soundboards
+        return context
 
-# Create your views here.
+
+
+   
+
+
 
 class SoundboardView(TemplateView):
     """
     Displays soundboard
     """
     template_name = "soundboard_index.html"
+
+    
 
 
 def soundboard_view(request, soundboard_id):
