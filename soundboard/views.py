@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.views.generic import TemplateView
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -6,6 +6,9 @@ import json
 from .models import Soundboard, Track
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class HomePage(TemplateView):
@@ -58,34 +61,40 @@ def save_soundboard(request):
     return JsonResponse({'status': 'error'}, status=400)
 
 
+@csrf_exempt
 def load_soundboard(request, soundboard_id):
-    soundboard = get_object_or_404(Soundboard, id=soundboard_id)
-    tracks = Track.objects.filter(soundboard=soundboard)
+    try:
+        soundboard = get_object_or_404(Soundboard, id=soundboard_id)
+        tracks = Track.objects.filter(soundboard=soundboard)
 
-    soundboard_data = {
-        'title': soundboard.title,
-        'description': soundboard.description,
-        'privacy': soundboard.privacy,
-        'tracks': [
-            {
-                'name': track.name,
-                'file_url': track.file_url,
-                'volume': track.volume,
-                'pan': track.pan,
-                'loop_start': track.loop_start,
-                'loop_end': track.loop_end,
-                'loop': track.loop,
-                'active': track.active,
-                'reversed': track.reversed,
-                'pitch': track.pitch,
-                'solo': track.solo,
-                'mute': track.mute,
-            }
-            for track in tracks
-        ]
-    }
+        soundboard_data = {
+            'title': soundboard.title,
+            'description': soundboard.description,
+            'privacy': soundboard.privacy,
+            'tracks': [
+                {
+                    'name': track.name,
+                    'file_url': track.file_url,
+                    'volume': track.volume,
+                    'pan': track.pan,
+                    'loop_start': track.loop_start,
+                    'loop_end': track.loop_end,
+                    'loop': track.loop,
+                    'active': track.active,
+                    'reversed': track.reversed,
+                    'pitch': track.pitch,
+                    'solo': track.solo,
+                    'mute': track.mute,
+                }
+                for track in tracks
+            ]
+        }
 
-    return JsonResponse(soundboard_data)
+        return JsonResponse(soundboard_data)
+    except Exception as e:
+        logger.error(f"Error loading soundboard: {e}")
+        return JsonResponse({'error': 'Error loading soundboard'}, status=500)
+
 
 @login_required
 def get_user_soundboards(request):
