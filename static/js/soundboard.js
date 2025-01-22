@@ -2,7 +2,7 @@
 document.addEventListener('DOMContentLoaded', async () => {
     const workspace = document.getElementById('workspace');
     const cards = document.querySelectorAll('.card');
-    const saveButton = document.getElementById('save-soundboard-btn');
+    let soundboardsFetched = false;
 
 
 
@@ -375,7 +375,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         try {
             // Send the data to the backend using fetch
-            const response = await fetch('/save_soundboard/', { // Replace with your actual URL
+            const response = await fetch('/save_soundboard/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -404,9 +404,53 @@ document.addEventListener('DOMContentLoaded', async () => {
         alert('Save as Draft functionality will be implemented here.');
     });
 
+
+    const dropdown = document.getElementById('soundboard_dropdown');
+
+    // Clear existing options to avoid duplication
+    dropdown.innerHTML = '<option value="">Select a soundboard</option>';
+
+    // fetch the soundboards from the server
+
+    fetch('/get_soundboards/')
+        .then(response => response.json())
+        .then(soundboards => {
+            soundboards.forEach(soundboard => {
+                const option = document.createElement('option');
+                option.value = soundboard.id;
+                option.textContent = soundboard.title;
+                dropdown.appendChild(option);
+            });
+            soundboardsFetched = true;
+        })
+        .catch(error => console.error('Error fetching soundboards:', error));
+
+
     document.getElementById('load-soundboard-btn').addEventListener('click', () => {
-        alert('Load functionality will be implemented here.');
+        const selectedSoundboardId = dropdown.value;
+
+        if (!selectedSoundboardId) {
+            alert('Please select a soundboard to load.');
+            return;
+        }
+
+        // Fetch the selected soundboard
+        fetch(`/load_soundboard/${selectedSoundboardId}/`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to load soundboard.');
+                }
+                return response.json();
+            })
+            .then(soundboardData => {
+                // Update the UI with the loaded soundboard
+                updateUIWithSoundboard(soundboardData);
+            })
+            .catch(error => console.error('Error loading soundboard:', error));
     });
+
+
+
 
     document.getElementById('post-to-feed-btn').addEventListener('click', () => {
         alert('Post to Feed functionality will be implemented here.');

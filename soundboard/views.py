@@ -106,6 +106,11 @@ def load_soundboard(request, soundboard_id):
     }
     return JsonResponse(response_data)
 
+@login_required
+def get_user_soundboards(request):
+    user_soundboards = Soundboard.objects.filter(user=request.user).values('id', 'title', 'description', 'privacy')
+    return JsonResponse(list(user_soundboards), safe=False)
+
 
 @csrf_exempt
 def get_audio_files(request):
