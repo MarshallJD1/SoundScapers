@@ -163,9 +163,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Create the track element
     function createTrackElement(audioFile, player, trackChannel) {
         const trackElement = document.createElement('div');
-        trackElement.classList.add('audio-track', 'bg-secondary', 'p-3', 'mb-2', 'rounded');
+        trackElement.classList.add('track','audio-track', 'bg-secondary', 'p-3', 'mb-2', 'rounded');
+        trackElement.dataset.fileUrl = audioFile;
         trackElement.innerHTML = `
-        <h6>${audioFile.split('/').pop()}</h6>
+        <h6 class="track-name">${audioFile.split('/').pop()}</h6>
         <button class="btn btn-primary btn-sm play-btn">Play</button>
         <button class="btn btn-danger btn-sm stop-btn">Stop</button>
 
@@ -347,54 +348,60 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 
 
-    document.getElementById('save-soundboard-btn').addEventListener('click', async () => {       // Gather soundboard data from the UI
-        const soundboardData = {
-            title: document.querySelector('#title')?.value || 'Untitled Soundboard',
-            description: document.querySelector('#description')?.value || '',
-            privacy: document.querySelector('#privacy-toggle')?.value || 'public',
-            tracks: []
-        };
+    document.getElementById('save-soundboard-btn').addEventListener('click', () => {
+        const title = document.getElementById('title').value;
+        const description = document.getElementById('description').value;
+        const privacy = document.getElementById('privacy-toggle').value;
+        const tracks = []; // Collect track data
 
-        // Loop through the tracks in the workspace to gather data
-        const trackElements = document.querySelectorAll('.track'); // Replace with the actual class for your tracks
-        trackElements.forEach(track => {
+            // Verify that the .track query selector is correctly identifying the track elements
+           const trackElements = document.querySelectorAll('.track');
+           console.log('Track elements:', trackElements);
+    
+        document.querySelectorAll('.track').forEach(trackElement => {
             const trackData = {
-                audio_file_id: track.dataset.audioFileId, // Assuming this is stored in a data attribute
-                volume: parseFloat(track.querySelector('.track-volume').value), // Adjust selectors as needed
-                pan: parseFloat(track.querySelector('.track-pan').value),
-                loop_start: parseFloat(track.querySelector('.track-loop-start').value) || 0.0,
-                loop_end: parseFloat(track.querySelector('.track-loop-end').value) || null,
-                loop: track.querySelector('.track-loop').checked,
-                active: track.querySelector('.track-active').checked,
-                reversed: track.querySelector('.track-reversed').checked,
+                name: trackElement.querySelector('.track-name').textContent,
+                file_url: trackElement.dataset.fileUrl,
+                loop: trackElement.querySelector('.loop-checkbox').checked,
+                volume: parseFloat(trackElement.querySelector('.volume-slider').value),
+                pan: parseFloat(trackElement.querySelector('.pan-slider').value),
+                loop_start: parseFloat(trackElement.querySelector('.loop-start').value),
+                loop_end: parseFloat(trackElement.querySelector('.loop-end').value),
+                active: trackElement.querySelector('.active-checkbox').checked,
+                reversed: trackElement.querySelector('.reverse-checkbox').checked,
+                pitch: parseFloat(trackElement.querySelector('.pitch-slider').value),
+                solo: trackElement.querySelector('.solo-checkbox').checked,
+                mute: trackElement.querySelector('.mute-checkbox').checked,
             };
-            soundboardData.tracks.push(trackData);
+            tracks.push(trackData);
         });
 
-        console.log('Saving Soundboard:', soundboardData); // Debugging output
-
-        try {
-            // Send the data to the backend using fetch
-            const response = await fetch('/save_soundboard/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': getCSRFToken() // Django requires a CSRF token
-                },
-                body: JSON.stringify(soundboardData)
-            });
-
-            if (response.ok) {
-                const responseData = await response.json();
-                alert(`Soundboard saved successfully! ID: ${responseData.soundboard_id}`);
+        console.log('Collected tracks data:', tracks);
+    
+        const soundboardData = {
+            title,
+            description,
+            privacy,
+            tracks
+        };
+    
+        fetch('/save_soundboard/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCSRFToken()
+            },
+            body: JSON.stringify(soundboardData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                alert('Soundboard saved successfully!');
             } else {
-                console.error('Failed to save soundboard:', response.status, response.statusText);
-                alert('Failed to save soundboard. Please try again.');
+                alert('Failed to save soundboard.');
             }
-        } catch (error) {
-            console.error('Error saving soundboard:', error);
-            alert('An error occurred while saving the soundboard. Please try again.');
-        }
+        })
+        .catch(error => console.error('Error saving soundboard:', error));
     });
 
 
@@ -449,6 +456,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             .catch(error => console.error('Error loading soundboard:', error));
     });
 
+    
+
 
 
 
@@ -464,4 +473,60 @@ document.addEventListener('DOMContentLoaded', async () => {
         const csrfTokenMatch = document.cookie.match(/csrftoken=([\w-]+)/);
         return csrfTokenMatch ? csrfTokenMatch[1] : '';
     }
-});
+
+    // Function to update the UI with the loaded soundboard data
+    function updateUIWithSoundboard(soundboardData) {
+        console.log('Soundboard data:', soundboardData); // Log the soundboard data for debugging
+       
+        const workspace = document.getElementById('workspace');
+        workspace.innerHTML = ''; // Clear the workspace
+    
+        // Create mixer if it doesn't exist
+        let mixer = document.querySelector('.mixer');
+        if (!mixer) {
+            mixer = createMixer();
+            workspace.appendChild(mixer);
+        }
+    
+        // Update the title and description
+        document.getElementById('title').value = soundboardData.title;
+        document.getElementById('description').value = soundboardData.description;
+        document.getElementById('privacy-toggle').value = soundboardData.privacy;
+    
+        // Add tracks to the workspace
+        if (Array.isArray(soundboardData.tracks)) {
+        soundboardData.tracks.forEach(trackData => {
+            const player = new Tone.Player({
+                url: trackData.file_url,
+                loop: trackData.loop,
+                volume: trackData.volume,
+            });
+    
+            const trackChannel = new Tone.Channel().connect(busChannel); // route to bus channel
+            player.connect(trackChannel); // Connect the player to the track channel
+    
+            const trackElement = createTrackElement(trackData.file_url, player, trackChannel);
+            mixer.appendChild(trackElement);
+    
+            // Set track properties
+            trackElement.querySelector('.track-name').textContent = trackData.name;
+            trackElement.querySelector('.volume-slider').value = trackData.volume;
+            trackElement.querySelector('.pan-slider').value = trackData.pan;
+            trackElement.querySelector('.loop-start').value = trackData.loop_start;
+            trackElement.querySelector('.loop-end').value = trackData.loop_end;
+            trackElement.querySelector('.loop-checkbox').checked = trackData.loop;
+            trackElement.querySelector('.active-checkbox').checked = trackData.active;
+            trackElement.querySelector('.reverse-checkbox').checked = trackData.reversed;
+            trackElement.querySelector('.pitch-slider').value = trackData.pitch;
+            trackElement.querySelector('.solo-checkbox').checked = trackData.solo;
+            trackElement.querySelector('.mute-checkbox').checked = trackData.mute;
+        });
+    } else {
+        console.log('No tracks to display');
+        // Optionally, display a message in the UI
+        const noTracksMessage = document.createElement('p');
+        noTracksMessage.textContent = 'No tracks available in this soundboard.';
+        workspace.appendChild(noTracksMessage);
+    }
+}});
+
