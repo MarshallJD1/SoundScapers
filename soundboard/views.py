@@ -26,6 +26,10 @@ class SoundboardView(TemplateView):
     template_name = "soundboard_index.html"
 
 
+def soundboard_view(request, soundboard_id):
+    soundboard = get_object_or_404(Soundboard, id=soundboard_id)
+    return render(request, 'soundboard_index.html', {'soundboard_id': soundboard.id})
+
 @csrf_exempt
 @login_required
 def save_soundboard(request):
@@ -57,7 +61,7 @@ def save_soundboard(request):
             )
             track.save()
 
-        return JsonResponse({'status': 'success'})
+        return JsonResponse({'status': 'success', 'soundboard_id': soundboard.id})
     return JsonResponse({'status': 'error'}, status=400)
 
 
@@ -114,3 +118,51 @@ def get_audio_files(request):
         return JsonResponse(audio_urls)
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)
+
+
+
+@csrf_exempt
+@login_required
+def update_soundboard(request, soundboard_id):
+    if request.method == "POST":
+        data = json.loads(request.body)
+        soundboard = get_object_or_404(Soundboard, id=soundboard_id, user=request.user)
+
+        soundboard.title = data['title']
+        soundboard.description = data['description']
+        soundboard.privacy = data['privacy']
+        soundboard.save()
+
+        # Delete existing tracks
+        soundboard.tracks.all().delete()
+
+        # Save new tracks
+        for track_data in data['tracks']:
+            track = Track(
+                soundboard=soundboard,
+                file_url=track_data['file_url'],
+                loop=track_data['loop'],
+                volume=track_data['volume'],
+                pan=track_data['pan'],
+                loop_start=track_data['loop_start'],
+                loop_end=track_data['loop_end'],
+                active=track_data['active'],
+                reversed=track_data['reversed'],
+                pitch=track_data['pitch'],
+                solo=track_data['solo'],
+                mute=track_data['mute']
+            )
+            track.save()
+
+        return JsonResponse({'status': 'success'})
+    return JsonResponse({'status': 'error'}, status=400)
+
+
+@csrf_exempt
+@login_required
+def delete_soundboard(request, soundboard_id):
+    if request.method == "DELETE":
+        soundboard = get_object_or_404(Soundboard, id=soundboard_id, user=request.user)
+        soundboard.delete()
+        return JsonResponse({'status': 'success'})
+    return JsonResponse({'status': 'error'}, status=400)

@@ -35,8 +35,10 @@
           <div class="card-body">Spooky</div>
         </div>
       </div>
+      <input type="hidden" id="soundboard_id" value="{{ soundboard_id }}">
       <div class="col-9 bg-light" id="workspace">
       <h5>Soundboard Workspace</h5>
+      
     </div>
     </div>
     
@@ -54,6 +56,7 @@
           <option selected disabled>Select a Soundboard</option>
         </select>
         <button class="btn btn-info w-100 mb-2" id="load-soundboard-btn">Load Soundboard</button>
+        <button class="btn btn-danger w-100" id="delete-soundboard-btn">Delete Soundboard</button>
       </div>
 
       <!-- Privacy Settings -->

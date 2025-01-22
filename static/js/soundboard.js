@@ -1,8 +1,24 @@
-
 document.addEventListener('DOMContentLoaded', async () => {
     const workspace = document.getElementById('workspace');
     const cards = document.querySelectorAll('.card');
     let soundboardsFetched = false;
+    let currentSoundboardId = null;
+
+        // Function to get CSRF token from cookies (required for Django POST requests)
+     function getCSRFToken() {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, 10) === 'csrftoken=') {
+                    cookieValue = decodeURIComponent(cookie.substring(10));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
 
 
 
@@ -350,18 +366,26 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
 
+    // Add a hidden input field to store the soundboord ID
+    const soundboardIdInput = document.createElement('input');
+    soundboardIdInput.type = 'hidden';
+    soundboardIdInput.id = 'soundboard_id';
+    document.body.appendChild(soundboardIdInput);
+
+
 
 
     document.getElementById('save-soundboard-btn').addEventListener('click', () => {
         const title = document.getElementById('title').value;
         const description = document.getElementById('description').value;
         const privacy = document.getElementById('privacy-toggle').value;
+        const soundboardId = document.getElementById('soundboard_id').value;
         const tracks = []; // Collect track data
 
-            // Verify that the .track query selector is correctly identifying the track elements
-           const trackElements = document.querySelectorAll('.track');
-           console.log('Track elements:', trackElements);
-    
+        // Verify that the .track query selector is correctly identifying the track elements
+        const trackElements = document.querySelectorAll('.track');
+        console.log('Track elements:', trackElements);
+
         document.querySelectorAll('.track').forEach(trackElement => {
             const trackData = {
                 name: trackElement.querySelector('.track-name').textContent,
@@ -381,15 +405,18 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
 
         console.log('Collected tracks data:', tracks);
-    
+
         const soundboardData = {
+            id: soundboardId,
             title,
             description,
             privacy,
             tracks
         };
-    
-        fetch('/save_soundboard/', {
+
+        const url = soundboardId ? `/update_soundboard/${soundboardId}/` : '/save_soundboard/';
+
+        fetch(url, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -401,12 +428,17 @@ document.addEventListener('DOMContentLoaded', async () => {
         .then(data => {
             if (data.status === 'success') {
                 alert('Soundboard saved successfully!');
+                if (!soundboardId) {
+                    document.getElementById('soundboard_id').value = data.soundboard_id;
+                }
             } else {
                 alert('Failed to save soundboard.');
             }
         })
         .catch(error => console.error('Error saving soundboard:', error));
     });
+
+    
 
 
 
@@ -438,15 +470,15 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 
     document.getElementById('load-soundboard-btn').addEventListener('click', () => {
-        const selectedSoundboardId = dropdown.value;
+        const soundboardId = document.getElementById('soundboard_dropdown').value;
 
-        if (!selectedSoundboardId) {
+        if (!soundboardId) {
             alert('Please select a soundboard to load.');
             return;
         }
 
         // Fetch the selected soundboard
-        fetch(`/load_soundboard/${selectedSoundboardId}/`)
+        fetch(`/load_soundboard/${soundboardId}/`)
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Failed to load soundboard.');
@@ -472,16 +504,18 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 
 
-    // Function to get CSRF token from cookies (required for Django POST requests)
-    function getCSRFToken() {
-        const csrfTokenMatch = document.cookie.match(/csrftoken=([\w-]+)/);
-        return csrfTokenMatch ? csrfTokenMatch[1] : '';
-    }
+   
 
     // Function to update the UI with the loaded soundboard data
     function updateUIWithSoundboard(soundboardData) {
         console.log('Soundboard data:', soundboardData); // Log the soundboard data for debugging
-       
+
+        //Set the soundboard ID in the hidden input field
+         document.getElementById('soundboard_id').value = soundboardData.id;
+         currentSoundboardId = soundboardData.id;
+         console.log('Current soundboard ID set to:', currentSoundboardId);
+        
+        // Clear the workspace
         const workspace = document.getElementById('workspace');
         workspace.innerHTML = ''; // Clear the workspace
     
@@ -532,5 +566,44 @@ document.addEventListener('DOMContentLoaded', async () => {
         noTracksMessage.textContent = 'No tracks available in this soundboard.';
         workspace.appendChild(noTracksMessage);
     }
+
+
+    // functionality for user to delete a soundboard
+    document.getElementById('delete-soundboard-btn').addEventListener('click', () => {
+        const soundboardId = document.getElementById('soundboard_dropdown').value;
+        console.log('Deleting soundboard:', soundboardId);
+
+        if (!soundboardId) {
+            alert('No soundboard to delete');
+            return;
+        }
+
+        // Show confirmation dialog
+        const userConfirmed = confirm('Are you sure you want to delete this soundboard? This action cannot be undone.');
+
+        if (userConfirmed) {
+            fetch(`/delete_soundboard/${soundboardId}/`, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRFToken': getCSRFToken()
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    alert('Soundboard deleted successfully');
+                    document.getElementById('soundboard_id').value = '';
+                    // Clear the UI
+                    document.getElementById('workspace').innerHTML = '';
+                    document.getElementById('title').value = '';
+                    document.getElementById('description').value = '';
+                    document.getElementById('privacy-toggle').value = 'private';
+                } else {
+                    alert('Failed to delete soundboard');
+                }
+            })
+            .catch(error => console.error('Error deleting soundboard:', error));
+        }
+    });
 }});
 

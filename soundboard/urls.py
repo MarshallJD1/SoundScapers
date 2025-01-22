@@ -12,6 +12,12 @@ urlpatterns = [
         views.get_user_soundboards, name='get_soundboards'),
     path('load_soundboard/<int:soundboard_id>/',
         views.load_soundboard, name='load_soundboard'),
+    path('update_soundboard/<int:soundboard_id>/',
+        views.update_soundboard, name='update_soundboard'),
+    path('delete_soundboard/<int:soundboard_id>/',
+        views.delete_soundboard, name='delete_soundboard'),
+    path('soundboard/<int:soundboard_id>/',
+        views.soundboard_view, name='soundboard_view'),
 
     
 ]
