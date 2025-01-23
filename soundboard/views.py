@@ -1,4 +1,4 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.views.generic import TemplateView
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -42,8 +42,10 @@ class SoundboardView(TemplateView):
 
 
 def soundboard_view(request, soundboard_id):
+    if 'from_view_button' in request.GET:
+        return redirect(f'/soundboard/?soundboard_id={soundboard_id}')
     soundboard = get_object_or_404(Soundboard, id=soundboard_id, user=request.user)
-    return render(request, 'index.html', {'soundboard': soundboard})
+    return render(request, 'soundboard_index.html', {'soundboard_id': soundboard.id, 'soundboard_title': soundboard.title})
 
 def save_tracks(soundboard, tracks_data):
     """

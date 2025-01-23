@@ -21,6 +21,29 @@ document.addEventListener('DOMContentLoaded', async () => {
         return cookieValue;
     }
 
+   // Check if soundboard_id is present in the URL query parameters
+   const urlParams = new URLSearchParams(window.location.search);
+   const soundboardId = urlParams.get('soundboard_id') || currentSoundboardId;
+   if (soundboardId) {
+       // Make an AJAX call to load the soundboard
+       fetch(`/load_soundboard/${soundboardId}/`, {
+           method: 'GET',
+           headers: {
+               'Content-Type': 'application/json',
+               'X-CSRFToken': getCSRFToken()
+           }
+       })
+       .then(response => response.json())
+       .then(data => {
+           // Update the UI with the loaded soundboard data
+           // Assuming you have a function to update the UI with the soundboard data
+           updateUIWithSoundboard(data);
+       })
+       .catch(error => {
+           console.error('Error loading soundboard:', error);
+       });
+   }
+
 
 
     if (!workspace) {

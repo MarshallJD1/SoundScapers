@@ -36,7 +36,7 @@
                 <div class="card-body">
                     <h5 class="card-title">{{ soundboard.title }}</h5>
                     <p class="card-text">{{ soundboard.description|default:"No description available" }}</p>
-                    <a href="{% url 'soundboard_view' soundboard.id %}" class="btn btn-primary">View</a>
+                    <a href="{% url 'soundboard_view' soundboard.id %}?from_view_button=true" class="btn btn-primary">View</a>
                 </div>
             </div>
         </div>
