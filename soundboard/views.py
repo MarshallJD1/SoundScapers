@@ -5,23 +5,24 @@ from django.views.decorators.csrf import csrf_exempt
 import json
 from .models import Soundboard, Track
 from django.contrib.auth.decorators import login_required
-from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 import logging
 
 logger = logging.getLogger(__name__)
 
-
+@method_decorator(login_required, name='dispatch')
 class HomePage(TemplateView):
     """
     Displays home page
     """
     template_name = 'index.html'
-    @method_decorator(login_required)
-    def get_context_data(self, **kwargs):
+
+
+    
+    def get_context_data(self, **kwargs,):
         context = super().get_context_data(**kwargs)
         soundboards = Soundboard.objects.filter(user=self.request.user)
-        logger.info(f"fetched soundboards: {soundboards}")
+        logger.debug(f"fetched soundboards for user {self.request.user}: {soundboards}")
         context['soundboards'] = soundboards
         return context
 
@@ -41,8 +42,8 @@ class SoundboardView(TemplateView):
 
 
 def soundboard_view(request, soundboard_id):
-    soundboard = get_object_or_404(Soundboard, id=soundboard_id)
-    return render(request, 'soundboard_index.html', {'soundboard_id': soundboard.id})
+    soundboard = get_object_or_404(Soundboard, id=soundboard_id, user=request.user)
+    return render(request, 'index.html', {'soundboard': soundboard})
 
 def save_tracks(soundboard, tracks_data):
     """

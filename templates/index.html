@@ -7,7 +7,6 @@
 
 <h1>Hello there, {{ user.username }}!</h1>
 
-
 <a href="{% url 'soundboard' %}">
     <button class="btn btn-primary">
         Soundboard
@@ -30,22 +29,19 @@
 <h2> Here are your soundboards:</h2>
 {% if soundboards %}
 <div class="row">
-{% for soundboard in soundboards %}
-    <div class="col-md-4">
-        <div class="card mb-3">
-            <div class="card-body">
-                <h5 class="card-title">{{ soundboard.name }}</h5>
-                <p class="card-text">{{ soundboard.description|default:"No description availible"}}</p>
-                <a href="{% url 'get_soundboards' soundboard.id %}" class="btn btn-primary">View</a>
+    <p>Soundboards found: {{ soundboards|length }}</p>
+    {% for soundboard in soundboards %}
+        <div class="col-md-4">
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">{{ soundboard.title }}</h5>
+                    <p class="card-text">{{ soundboard.description|default:"No description available" }}</p>
+                    <a href="{% url 'soundboard_view' soundboard.id %}" class="btn btn-primary">View</a>
+                </div>
             </div>
         </div>
-    </div>
-{% endfor %}
+    {% endfor %}
 </div>
-
-            
-
-
 {% else %}
 <p>You have no soundboards.</p>
 {% endif %}
