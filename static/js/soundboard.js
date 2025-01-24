@@ -136,7 +136,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Create the mixer with master controls
     function createMixer() {
         const mixer = document.createElement('div');
-        mixer.classList.add('mixer', 'bg-light', 'p-3', 'mb-3', 'rounded');
+        mixer.classList.add('mixer', 'bg-light', 'p-3', 'mb-3', 'rounded', 'row');
         mixer.innerHTML = `
             <h5>Mixer</h5>
             <div class="master-controls bg-dark p-3 rounded mb-2">
@@ -257,7 +257,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Create the track element
     function createTrackElement(audioFile, player, trackChannel) {
         const trackElement = document.createElement('div');
-        trackElement.classList.add('track', 'audio-track', 'bg-secondary', 'p-3', 'mb-2', 'rounded');
+        trackElement.classList.add('track', 'audio-track', 'bg-secondary', 'p-3', 'mb-2', 'rounded', 'col-4');
         trackElement.dataset.fileUrl = audioFile;
 
         // extract file name from the url
@@ -445,6 +445,31 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     }
 
+    document.getElementById('clear_workspace').addEventListener('click', () => {
+        // Clear the workspace
+        document.getElementById('workspace').innerHTML = '';
+    
+        // Reset the tracks array
+        tracks = [];
+    
+        // Reset other UI elements or state variables as needed
+        document.getElementById('title').value = '';
+        document.getElementById('description').value = '';
+        document.getElementById('privacy-toggle').value = 'private';
+    
+        // Reset the mixer
+        const mixerContainer = document.getElementById('mixer-container');
+        if (mixerContainer) {
+            mixerContainer.innerHTML = '';
+            const mixer = createMixer();
+            mixerContainer.appendChild(mixer);
+        }
+    
+        // Reset Tone.Transport
+        Tone.Transport.stop();
+        Tone.Transport.cancel();
+    });
+
 
 
 
@@ -576,6 +601,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                 alert('An error occurred while loading the soundboard.');
             });
     });
+
+
 
 
 
