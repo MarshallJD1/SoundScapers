@@ -77,9 +77,9 @@ def save_soundboard(request):
         # Create a new soundboard
         soundboard = Soundboard.objects.create(
             id=data.get('soundboard_id'),
-            title=data.get['title'],
-            description=data.get['description'],
-            privacy=data.get['privacy'],
+            title=data.get('title'),
+            description=data.get('description'),
+            privacy=data.get('privacy'),
             user=request.user
         )
 
