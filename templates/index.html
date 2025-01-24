@@ -2,66 +2,57 @@
 {% load static %}
 {% block title %}Homepage{% endblock %}
 
+
+
 {% block content %}
-{% if user.is_authenticated %}
-
-<h1>Hello there, {{ user.username }}!</h1>
-
-<a href="{% url 'soundboard' %}">
-    <button class="btn btn-primary">
-        Soundboard
-    </button>
-</a>
-
-<a href="{% url 'password_change' %}">
-    <button class="btn btn-primary">
-        Change Password
-    </button>
-</a>
-
-<form action="{% url 'logout' %}" method="post">
-    {% csrf_token %}
-    <button type="submit" class="btn btn-primary">Log Out</button>
-</form>
-
-<br>
-
-<h2> Here are your soundboards:</h2>
-{% if soundboards %}
-<div class="row">
+<div class="container-fluid h-100">
+  {% if user.is_authenticated %}
+  <h1 class="mt-4">Hello there, {{ user.username }}!</h1>
+  <div class="row mt-3">
+    <div class="col-md-4">
+      <a href="{% url 'soundboard' %}">
+        <button class="btn btn-primary w-100 mb-2">Soundboard</button>
+      </a>
+    </div>
+    <div class="col-md-4">
+      <a href="{% url 'password_change' %}">
+        <button class="btn btn-primary w-100 mb-2">Change Password</button>
+      </a>
+    </div>
+    <div class="col-md-4">
+      <form action="{% url 'logout' %}" method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-primary w-100 mb-2">Log Out</button>
+      </form>
+    </div>
+  </div>
+  <h2 class="mt-4">Here are your soundboards:</h2>
+  {% if soundboards %}
+  <div class="row">
     <p>Soundboards found: {{ soundboards|length }}</p>
     {% for soundboard in soundboards %}
-        <div class="col-md-4">
-            <div class="card mb-3">
-                <div class="card-body">
-                    <h5 class="card-title">{{ soundboard.title }}</h5>
-                    <p class="card-text">{{ soundboard.description|default:"No description available" }}</p>
-                    <a href="{% url 'soundboard_view' soundboard.id %}?from_view_button=true" class="btn btn-primary">View</a>
-                </div>
-            </div>
+    <div class="col-md-4">
+      <div class="card mb-3">
+        <div class="card-body">
+          <h5 class="card-title">{{ soundboard.title }}</h5>
+          <p class="card-text">{{ soundboard.description|default:"No description available" }}</p>
+          <a href="{% url 'soundboard_view' soundboard.id %}?from_view_button=true" class="btn btn-primary">View</a>
         </div>
+      </div>
+    </div>
     {% endfor %}
+  </div>
+  {% else %}
+  <p>You have no soundboards.</p>
+  {% endif %}
+  {% else %}
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <h1 class="mt-4">Welcome to SoundScapers!</h1>
+      <p>Please <a href="{% url 'login' %}">log in</a> to access your soundboards.</p>
+    </div>
+  </div>
+  {% endif %}
 </div>
-{% else %}
-<p>You have no soundboards.</p>
-{% endif %}
-
-{% else %}
-
-<h1>Welcome to Soundscapers!</h1>
-<br>
-<p>You are not logged in.</p>
-<a href="{% url 'password_reset' %}">
-<button class="btn btn-primary">
-    Forgot Password?
-</button>
-</a>
-<a href="{% url 'login' %}">
-<button class="btn btn-primary">
-Log In
-</button>
-</a>
-
-{% endif %}
 {% endblock %}
 

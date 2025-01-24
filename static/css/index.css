@@ -1,0 +1,13 @@
+/* General Page Styling */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f9;
+    margin: 0;
+    padding: 20px;
+}
+
+/* Navbar Styling */
+.navbar {
+    padding-left: 20px;
+    padding-right: 20px;
+}
