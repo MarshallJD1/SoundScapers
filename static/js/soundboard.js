@@ -317,17 +317,19 @@ document.addEventListener('DOMContentLoaded', async () => {
         waveformCanvas.addEventListener('mousemove', (e) => {
             const rect = waveformCanvas.getBoundingClientRect();
             const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
             const duration = player.buffer.duration;
             const timeAtX = (x / waveformCanvas.width) * duration;
-
+        
             // Display the time in the tooltip
             timeTooltip.textContent = `${timeAtX.toFixed(2)}s`;
-            timeTooltip.style.left = `${x + 10}px`;  // Position tooltip just beside the cursor
-            timeTooltip.style.top = `${rect.top - 30}px`;  // Position above the waveform
+            timeTooltip.style.left = `${e.pageX + 10}px`;  // Position tooltip just beside the cursor
+            timeTooltip.style.top = `${e.pageY + 10}px`;  // Position below the cursor
+            timeTooltip.style.display = 'block';  // Ensure the tooltip is visible
         });
-
+        
         waveformCanvas.addEventListener('mouseleave', () => {
-            timeTooltip.textContent = ''; // Hide the tooltip when mouse leaves
+            timeTooltip.style.display = 'none'; // Hide the tooltip when mouse leaves
         });
 
         // Lock/Unlock button functionality
