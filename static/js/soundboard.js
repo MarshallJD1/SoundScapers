@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const cards = document.querySelectorAll('.card');
     let soundboardsFetched = false;
     let currentSoundboardId = document.getElementById('soundboard_id').value;
-    
+
 
     // Function to get CSRF token from cookies (required for Django POST requests)
     function getCSRFToken() {
@@ -21,28 +21,27 @@ document.addEventListener('DOMContentLoaded', async () => {
         return cookieValue;
     }
 
-   // Check if soundboard_id is present in the URL query parameters
-   const urlParams = new URLSearchParams(window.location.search);
-   const soundboardId = urlParams.get('soundboard_id') || currentSoundboardId;
-   if (soundboardId) {
-       // Make an AJAX call to load the soundboard
-       fetch(`/load_soundboard/${soundboardId}/`, {
-           method: 'GET',
-           headers: {
-               'Content-Type': 'application/json',
-               'X-CSRFToken': getCSRFToken()
-           }
-       })
-       .then(response => response.json())
-       .then(data => {
-           // Update the UI with the loaded soundboard data
-           // Assuming you have a function to update the UI with the soundboard data
-           updateUIWithSoundboard(data);
-       })
-       .catch(error => {
-           console.error('Error loading soundboard:', error);
-       });
-   }
+    // Check if soundboard_id is present in the URL query parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    const soundboardId = urlParams.get('soundboard_id') || currentSoundboardId;
+    if (soundboardId) {
+        // Make an AJAX call to load the soundboard
+        fetch(`/load_soundboard/${soundboardId}/`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCSRFToken()
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                // Update the UI with the loaded soundboard data
+                updateUIWithSoundboard(data);
+            })
+            .catch(error => {
+                console.error('Error loading soundboard:', error);
+            });
+    }
 
 
 
@@ -161,30 +160,57 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
 
 
-        // Master timeline controls
         const playPauseButton = mixer.querySelector('.play-pause-btn');
         let isPlaying = false;
-
+        
         playPauseButton.addEventListener('click', () => {
             isPlaying = !isPlaying;
             playPauseButton.textContent = isPlaying ? 'Pause' : 'Play';
-
+        
             if (isPlaying) {
                 // Start all active tracks
-                tracks.forEach(({ player, trackElement }) => {
+                tracks.forEach(async ({ player, trackElement }) => {
                     const activeCheckbox = trackElement.querySelector('.active-checkbox');
                     if (activeCheckbox.checked) {
-                        player.start();
+                        if (player) {
+                            try {
+                                const url = trackElement.getAttribute('data-file-url');
+                                if (url) {
+                                    console.log(`Loading player with URL: ${url}`);
+                                    const buffer = new Tone.Buffer(url, () => {
+                                        console.log('Buffer loaded successfully:', buffer);
+                                        player.buffer = buffer;
+                                        player.start();
+                                    }, (error) => {
+                                        console.error('Error loading buffer:', error);
+                                    });
+                                } else {
+                                    console.error('Player URL is undefined for track:', trackElement);
+                                }
+                            } catch (error) {
+                                console.error('Error starting player:', error);
+                            }
+                        } else {
+                            console.error('Player is undefined for track:', trackElement);
+                        }
                     }
                 });
-
+        
                 Tone.Transport.start(); // Start global transport
             } else {
                 // Stop all tracks when master is paused
                 tracks.forEach(({ player }) => {
-                    player.stop();
+                    if (player) {
+                        try {
+                            player.stop();
+                        } catch (error) {
+                            console.error('Error stopping player:', error);
+                        }
+                    } else {
+                        console.error('Player is undefined for track');
+                    }
                 });
-
+        
                 Tone.Transport.pause(); // Pause global transport
             }
         });
@@ -391,8 +417,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 
     // get hidden input field for soundboard id
-    
-    
+
+
 
 
 
@@ -425,7 +451,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         console.log('Collected tracks data:', tracks);
 
-    
+
 
         const soundboardData = {
             id: soundboardId,
