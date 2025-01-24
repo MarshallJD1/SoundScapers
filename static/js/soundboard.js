@@ -77,7 +77,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     workspace.addEventListener('drop', handleDrop);
 
     // Add a start button for Tone.js interaction
-    
+
 
 
 
@@ -141,12 +141,19 @@ document.addEventListener('DOMContentLoaded', async () => {
             <h5>Mixer</h5>
             <div class="master-controls bg-dark p-3 rounded mb-2">
                 <label>Master Volume</label>
-                <input type="range" class="master-volume" min="-48" max="5" step="0.01" value="0.5">
+                <input type="range" class="master-volume" min="-20" max="5" step="0.01" value="0.5">
                 <label>Master Pan</label>
                 <input type="range" class="master-pan" min="-1" max="1" step="0.01" value="0">
-                <label>Master Timeline (1 - 180 seconds)</label>
-                <input type="range" class="master-timeline" min="1" max="180" step="1" value="60">
+                <label>Record Duration (1 - 180 seconds)</label>
+                <input type="number" class="record-duration" min="1" max="30" step="1" value="15">
                 <button class="btn btn-success play-pause-btn">Play</button>
+                <button class="btn btn-danger record-btn">Record</button>
+                <div class="recording-notification" style="display: none;">
+                <div class="loading-bar">
+                    <div class="progress" style="width: 0%;"></div>
+                </div>
+                <p>Recording...</p>
+            </div>
             </div>
         `;
 
@@ -179,6 +186,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             playPauseButton.textContent = isPlaying ? 'Pause' : 'Play';
 
             if (isPlaying) {
+                const duration = parseFloat(mixer.querySelector('.record-duration').value);
+                startMasterTimeline(duration);
+
                 // Start all active tracks
                 tracks.forEach(async ({ player, trackElement }) => {
                     const activeCheckbox = trackElement.querySelector('.active-checkbox');
@@ -225,6 +235,13 @@ document.addEventListener('DOMContentLoaded', async () => {
                 Tone.Transport.pause(); // Pause global transport
             }
         });
+
+        const recordButton = mixer.querySelector('.record-btn');
+        recordButton.addEventListener('click', () => {
+            const duration = parseFloat(mixer.querySelector('.record-duration').value);
+            startRecording(duration);
+        });
+
         return mixer;
     }
 
@@ -320,14 +337,14 @@ document.addEventListener('DOMContentLoaded', async () => {
             const y = e.clientY - rect.top;
             const duration = player.buffer.duration;
             const timeAtX = (x / waveformCanvas.width) * duration;
-        
+
             // Display the time in the tooltip
             timeTooltip.textContent = `${timeAtX.toFixed(2)}s`;
             timeTooltip.style.left = `${e.pageX + 10}px`;  // Position tooltip just beside the cursor
             timeTooltip.style.top = `${e.pageY + 10}px`;  // Position below the cursor
             timeTooltip.style.display = 'block';  // Ensure the tooltip is visible
         });
-        
+
         waveformCanvas.addEventListener('mouseleave', () => {
             timeTooltip.style.display = 'none'; // Hide the tooltip when mouse leaves
         });
@@ -429,7 +446,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
 
-   
+
 
 
 
@@ -509,7 +526,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 
 
-    
+
 
 
     const dropdown = document.getElementById('soundboard_dropdown');
@@ -565,7 +582,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 
 
-    
+
 
 
 
@@ -687,6 +704,93 @@ document.addEventListener('DOMContentLoaded', async () => {
                 .catch(error => console.error('Error deleting soundboard:', error));
         }
     });
+
+
+    // Function to start recording audio
+    async function startRecording(duration) {
+        const recorder = new Tone.Recorder();
+        masterChannel.connect(recorder);
+
+        // Show the recording notification
+        const notification = document.querySelector('.recording-notification');
+        notification.style.display = 'block';
+
+        // Update the loading bar progress
+        const progressBar = notification.querySelector('.progress');
+        let elapsed = 0;
+        const interval = setInterval(() => {
+            elapsed += 100;
+            const progress = (elapsed / (duration * 1000)) * 100;
+            progressBar.style.width = `${progress}%`;
+        }, 100);
+
+        // Start recording
+        recorder.start();
+
+        // Start all active tracks
+        tracks.forEach(async ({ player, trackElement }) => {
+            const activeCheckbox = trackElement.querySelector('.active-checkbox');
+            if (activeCheckbox.checked) {
+                if (player) {
+                    try {
+                        const url = trackElement.getAttribute('data-file-url');
+                        if (url) {
+                            console.log(`Loading player with URL: ${url}`);
+                            const buffer = new Tone.Buffer(url, () => {
+                                console.log('Buffer loaded successfully:', buffer);
+                                player.buffer = buffer;
+                                player.start();
+                            }, (error) => {
+                                console.error('Error loading buffer:', error);
+                            });
+                        } else {
+                            console.error('Player URL is undefined for track:', trackElement);
+                        }
+                    } catch (error) {
+                        console.error('Error starting player:', error);
+                    }
+                } else {
+                    console.error('Player is undefined for track:', trackElement);
+                }
+            }
+        });
+
+        Tone.Transport.start(); // Start global transport
+
+        // Stop recording after the specified duration
+        setTimeout(async () => {
+            const recording = await recorder.stop();
+            Tone.Transport.stop(); // Stop global transport
+
+            // Stop all active tracks
+            tracks.forEach(({ player }) => {
+                if (player) {
+                    try {
+                        player.stop();
+                    } catch (error) {
+                        console.error('Error stopping player:', error);
+                    }
+                } else {
+                    console.error('Player is undefined for track');
+                }
+            });
+
+            // Create a download link for the recording
+            const url = URL.createObjectURL(recording);
+            const anchor = document.createElement('a');
+            anchor.href = url;
+            anchor.download = 'recording.wav';
+            anchor.click();
+
+            // Disconnect the recorder
+            masterChannel.disconnect(recorder);
+
+            // Remove the notification
+            clearInterval(interval);
+            notification.style.display = 'none';
+            progressBar.style.width = '0%'; // Reset progress bar
+        }, duration * 1000);
+    }
 
 });
 
