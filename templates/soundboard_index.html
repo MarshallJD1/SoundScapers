@@ -15,7 +15,7 @@
   <div class="container-fluid h-100">
     <div class="row flex-grow-1">
       <div class="col-3" id="side-pane">
-        <h4>Audio Library <button id='start-audio-btn' class="btn btn-primary">Start Audio</button></h4>
+        <h4>Audio Library</h4>
         <div class="card" draggable="true" data-audio="{% static 'audio/fireloop.wav' %}">
           <div class="card-body">Camp Fire</div>
         </div>
@@ -50,8 +50,8 @@
     <div class="row">
       <!-- Save and Load Buttons -->
       <div class="col-md-4">
-        <button class="btn btn-primary w-100 mb-2" id="save-soundboard-btn">Save Soundboard</button>
-        <button class="btn btn-secondary w-100 mb-2" id="save-draft-btn">Save as Draft</button>
+        
+        <!-- <button class="btn btn-secondary w-100 mb-2" id="save-draft-btn">Save as Draft</button> -->
         <select id="soundboard_dropdown" class="form-select mb-2">
           <option selected disabled>Select a Soundboard</option>
         </select>
@@ -59,21 +59,21 @@
         <button class="btn btn-danger w-100" id="delete-soundboard-btn">Delete Soundboard</button>
       </div>
 
-      <!-- Privacy Settings -->
+       Privacy Settings 
       <div class="col-md-4">
         <label for="privacy-toggle" class="form-label">Privacy</label>
         <select id="privacy-toggle" class="form-select">
           <option value="public">Public</option>
           <option value="private">Private</option>
         </select>
-      </div>
+      </div> 
 
       <!-- Post to Feed -->
       <div class="col-md-4">
         <textarea id="title" class="form-control mb-2" rows="1" placeholder="Add a title for your soundboard.."></textarea>
         <textarea id="description" class="form-control mb-2" rows="2"
           placeholder="Add a description for you soundboard.."></textarea>
-        <button class="btn btn-success w-100" id="post-to-feed-btn">Post to Feed</button>
+          <button class="btn btn-primary w-100 mb-2" id="save-soundboard-btn">Save Soundboard</button>
       </div>
     </div>
   </div>

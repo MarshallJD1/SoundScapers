@@ -3,6 +3,25 @@ document.addEventListener('DOMContentLoaded', async () => {
     const cards = document.querySelectorAll('.card');
     let soundboardsFetched = false;
     let currentSoundboardId = document.getElementById('soundboard_id').value;
+    let tracks = [];
+
+    // Start Tone.js audio context on first user interaction
+    function startAudioContextOnInteraction() {
+        const startAudioContext = async () => {
+            if (!Tone.context.state || Tone.context.state !== 'running') {
+                await Tone.start();
+                console.log('Tone.js audio context started');
+            }
+            document.removeEventListener('click', startAudioContext);
+            document.removeEventListener('keydown', startAudioContext);
+        };
+
+        document.addEventListener('click', startAudioContext);
+        document.addEventListener('keydown', startAudioContext);
+    }
+
+    // Call the function to start the audio context on interaction
+    startAudioContextOnInteraction();
 
 
     // Function to get CSRF token from cookies (required for Django POST requests)
@@ -62,19 +81,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 
 
-    startButton.addEventListener('click', async () => {
-        // Start Tone.js only when the button is clicked
-        if (!Tone.context.state || Tone.context.state !== 'running') {
-            await Tone.start();
-            console.log('Tone.js audio context started');
-            startButton.style.display = 'none';  // Hide the start button after starting
-        }
-        Tone.start();
-    });
+
 
     const masterChannel = new Tone.Channel().toDestination(); // Master channel
     const busChannel = new Tone.Channel().connect(masterChannel); // Bus channel for routing
-    const tracks = []; // To store active tracks
+
 
     function handleDragStart(e) {
         e.dataTransfer.setData('text/plain', e.target.dataset.audio);
@@ -162,11 +173,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         const playPauseButton = mixer.querySelector('.play-pause-btn');
         let isPlaying = false;
-        
+
         playPauseButton.addEventListener('click', () => {
             isPlaying = !isPlaying;
             playPauseButton.textContent = isPlaying ? 'Pause' : 'Play';
-        
+
             if (isPlaying) {
                 // Start all active tracks
                 tracks.forEach(async ({ player, trackElement }) => {
@@ -195,7 +206,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         }
                     }
                 });
-        
+
                 Tone.Transport.start(); // Start global transport
             } else {
                 // Stop all tracks when master is paused
@@ -210,7 +221,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         console.error('Player is undefined for track');
                     }
                 });
-        
+
                 Tone.Transport.pause(); // Pause global transport
             }
         });
@@ -496,9 +507,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 
 
-    document.getElementById('save-draft-btn').addEventListener('click', () => {
-        alert('Save as Draft functionality will be implemented here.');
-    });
+    
 
 
     const dropdown = document.getElementById('soundboard_dropdown');
@@ -554,10 +563,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 
 
-    document.getElementById('post-to-feed-btn').addEventListener('click', () => {
-        alert('Post to Feed functionality will be implemented here.');
-    });
-
+    
 
 
 
@@ -596,6 +602,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('description').value = soundboardData.description || '';
         document.getElementById('privacy-toggle').value = soundboardData.privacy || 'public';
 
+        tracks = []; // Reset tracks array
         // Add tracks to the mixer
         if (Array.isArray(soundboardData.tracks) && soundboardData.tracks.length > 0) {
             soundboardData.tracks.forEach(trackData => {
@@ -623,6 +630,14 @@ document.addEventListener('DOMContentLoaded', async () => {
                 trackElement.querySelector('.pitch-slider').value = parseFloat(trackData.pitch) || 1;
                 trackElement.querySelector('.solo-checkbox').checked = !!trackData.solo;
                 trackElement.querySelector('.mute-checkbox').checked = !!trackData.mute;
+
+                // Load the player buffer
+                player.load(trackData.file_url).then(() => {
+                    console.log('Buffer loaded for track: ${trackData.name}');
+                }).catch(error => {
+                    console.error('Error loading bufferfor track: ${trackData.name}', error);
+                });
+                tracks.push({ player, trackChannel, trackElement });
             });
         } else {
             console.log('No tracks to display.');
