@@ -1,7 +1,7 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views.generic import TemplateView
 from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.csrf import csrf_protect
 import json
 from .models import Soundboard, Track
 from django.contrib.auth.decorators import login_required
@@ -68,7 +68,7 @@ def save_tracks(soundboard, tracks_data):
             mute=track_data['mute']
         )
 
-@csrf_exempt
+@csrf_protect
 @login_required
 def save_soundboard(request):
     if request.method == "POST":
@@ -91,7 +91,8 @@ def save_soundboard(request):
     return JsonResponse({'status': 'error'}, status=400)
 
 
-@csrf_exempt
+@csrf_protect
+@login_required
 def load_soundboard(request, soundboard_id):
     try:
         soundboard = get_object_or_404(Soundboard, id=soundboard_id)
@@ -126,14 +127,15 @@ def load_soundboard(request, soundboard_id):
         logger.error(f"Error loading soundboard: {e}")
         return JsonResponse({'error': 'Error loading soundboard'}, status=500)
 
-
+@csrf_protect
 @login_required
 def get_user_soundboards(request):
     user_soundboards = Soundboard.objects.filter(user=request.user).values('id', 'title', 'description', 'privacy')
     return JsonResponse(list(user_soundboards), safe=False)
 
 
-@csrf_exempt
+@csrf_protect
+@login_required
 def get_audio_files(request):
     try:
         audio_dir = os.path.join(settings.STATIC_ROOT, 'audio')
@@ -148,7 +150,7 @@ def get_audio_files(request):
 
 
 
-@csrf_exempt
+@csrf_protect
 @login_required
 def update_soundboard(request, soundboard_id):
     if request.method == "POST":
@@ -171,7 +173,7 @@ def update_soundboard(request, soundboard_id):
     return JsonResponse({'status': 'error'}, status=400)
 
 
-@csrf_exempt
+@csrf_protect
 @login_required
 def delete_soundboard(request, soundboard_id):
     if request.method == "DELETE":
