@@ -136,7 +136,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Create the mixer with master controls
     function createMixer() {
         const mixer = document.createElement('div');
-        mixer.classList.add('mixer', 'bg-light', 'p-3', 'mb-3', 'rounded');
+        mixer.classList.add('mixer', 'bg-light', 'p-3', 'mb-3', 'rounded', 'row');
         mixer.innerHTML = `
             <h5>Mixer</h5>
             <div class="master-controls bg-dark p-3 rounded mb-2">
@@ -257,7 +257,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Create the track element
     function createTrackElement(audioFile, player, trackChannel) {
         const trackElement = document.createElement('div');
-        trackElement.classList.add('track', 'audio-track', 'bg-secondary', 'p-3', 'mb-2', 'rounded');
+        trackElement.classList.add('track', 'audio-track', 'bg-secondary', 'p-3', 'mb-2', 'rounded', 'col-4');
         trackElement.dataset.fileUrl = audioFile;
 
         // extract file name from the url
