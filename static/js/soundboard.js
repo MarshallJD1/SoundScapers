@@ -77,7 +77,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     workspace.addEventListener('drop', handleDrop);
 
     // Add a start button for Tone.js interaction
-    const startButton = document.getElementById('start-audio-btn');
+    
 
 
 
@@ -427,7 +427,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
 
-    // get hidden input field for soundboard id
+   
 
 
 
