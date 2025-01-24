@@ -49,7 +49,7 @@
 
     <div class="row">
       <!-- Save and Load Buttons -->
-      <div class="col-md-4">
+      <div class="col-md-6">
         
         <!-- <button class="btn btn-secondary w-100 mb-2" id="save-draft-btn">Save as Draft</button> -->
         <select id="soundboard_dropdown" class="form-select mb-2">
@@ -59,8 +59,9 @@
         <button class="btn btn-danger w-100" id="delete-soundboard-btn">Delete Soundboard</button>
       </div>
 
-       Privacy Settings 
-      <div class="col-md-4">
+
+       <!--Privacy Settings -->
+      <div class="col-md-4" id="hidden-privacy">
         <label for="privacy-toggle" class="form-label">Privacy</label>
         <select id="privacy-toggle" class="form-select">
           <option value="public">Public</option>
@@ -69,7 +70,7 @@
       </div> 
 
       <!-- Post to Feed -->
-      <div class="col-md-4">
+      <div class="col-md-6">
         <textarea id="title" class="form-control mb-2" rows="1" placeholder="Add a title for your soundboard.."></textarea>
         <textarea id="description" class="form-control mb-2" rows="2"
           placeholder="Add a description for you soundboard.."></textarea>

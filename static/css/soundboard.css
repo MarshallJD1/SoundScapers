@@ -165,3 +165,7 @@ body {
 .audio-track:hover .time-tooltip {
     display: block;
 }
+
+#hidden-privacy {
+    display: none;
+}   
