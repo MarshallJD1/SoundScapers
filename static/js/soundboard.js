@@ -267,6 +267,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         <h6 class="track-name">${fileName}</h6>
         <button class="btn btn-primary btn-sm play-btn">Play</button>
         <button class="btn btn-danger btn-sm stop-btn">Stop</button>
+         <div class="loading-indicator" style="display: none;">Loading...</div>
 
         <label>Active</label>
         <input type="checkbox" class="active-checkbox" checked>
@@ -389,6 +390,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         // Play button functionality
         trackElement.querySelector('.play-btn').addEventListener('click', () => {
+           if (player.loaded){ 
             // Apply settings
             player.loopStart = parseFloat(trackElement.querySelector('.loop-start').value);
             player.loopEnd = parseFloat(trackElement.querySelector('.loop-end').value);
@@ -399,7 +401,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             trackChannel.volume.value = volume;
 
             // Start playing
-            player.start();
+            player.start();}
+            else{
+                console.warn('Track is not fully loaded yet.');
+            }
         });
 
         trackElement.querySelector('.active-checkbox').addEventListener('change', (e) => {
@@ -408,7 +413,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         // Stop button functionality
         trackElement.querySelector('.stop-btn').addEventListener('click', () => {
+            if(player.state === 'started') {
             player.stop();
+            }
+            else{
+                console.warn('Track is not playing.');
+            }
         });
 
         // Pan slider functionality
@@ -441,6 +451,21 @@ document.addEventListener('DOMContentLoaded', async () => {
             trackElement.remove();
         });
 
+        const loadingIndicator = trackElement.querySelector('.loading-indicator');
+        const playButton = trackElement.querySelector('.play-btn');
+        const stopButton = trackElement.querySelector('.stop-btn');
+
+        // Show loading indicator while the track is being loaded
+        loadingIndicator.style.display = 'block';
+        player.load(audioFile).then(() => {
+            loadingIndicator.style.display = 'none';
+            playButton.disabled = false;
+            stopButton.disabled = false;
+        }).catch(error => {
+            console.error('Error loading track:', error);
+            loadingIndicator.textContent = 'Error loading track';
+        });
+
         return trackElement;
 
     }
@@ -448,15 +473,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('clear_workspace').addEventListener('click', () => {
         // Clear the workspace
         document.getElementById('workspace').innerHTML = '';
-    
+
         // Reset the tracks array
         tracks = [];
-    
+
         // Reset other UI elements or state variables as needed
         document.getElementById('title').value = '';
         document.getElementById('description').value = '';
         document.getElementById('privacy-toggle').value = 'private';
-    
+
         // Reset the mixer
         const mixerContainer = document.getElementById('mixer-container');
         if (mixerContainer) {
@@ -464,7 +489,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const mixer = createMixer();
             mixerContainer.appendChild(mixer);
         }
-    
+
         // Reset Tone.Transport
         Tone.Transport.stop();
         Tone.Transport.cancel();
