@@ -445,6 +445,31 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     }
 
+    document.getElementById('clear_workspace').addEventListener('click', () => {
+        // Clear the workspace
+        document.getElementById('workspace').innerHTML = '';
+    
+        // Reset the tracks array
+        tracks = [];
+    
+        // Reset other UI elements or state variables as needed
+        document.getElementById('title').value = '';
+        document.getElementById('description').value = '';
+        document.getElementById('privacy-toggle').value = 'private';
+    
+        // Reset the mixer
+        const mixerContainer = document.getElementById('mixer-container');
+        if (mixerContainer) {
+            mixerContainer.innerHTML = '';
+            const mixer = createMixer();
+            mixerContainer.appendChild(mixer);
+        }
+    
+        // Reset Tone.Transport
+        Tone.Transport.stop();
+        Tone.Transport.cancel();
+    });
+
 
 
 
@@ -576,6 +601,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                 alert('An error occurred while loading the soundboard.');
             });
     });
+
+
 
 
 
