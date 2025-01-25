@@ -70,11 +70,19 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     cards.forEach(card => {
+        // Mouse drag events
         card.addEventListener('dragstart', handleDragStart);
+
+        // Touch drag events
+        card.addEventListener('touchstart', handleTouchStart);
     });
 
-    workspace.addEventListener('dragover', handleDragOver);
-    workspace.addEventListener('drop', handleDrop);
+    workspace.addEventListener('dragover', handleDragOver); // Mouse
+    workspace.addEventListener('drop', handleDrop); // Mouse
+
+    // Touch equivalents for dragover and drop
+    workspace.addEventListener('touchmove', handleTouchMove);
+    workspace.addEventListener('touchend', handleTouchEnd);
 
     // Add a start button for Tone.js interaction
 
@@ -85,6 +93,84 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const masterChannel = new Tone.Channel().toDestination(); // Master channel
     const busChannel = new Tone.Channel().connect(masterChannel); // Bus channel for routing
+
+    // Function to handle touch start event
+    let draggedAudio = null; // Store the dragged card's audio
+    let ghostElement = null; // Visual cue for touch dragging
+
+    function handleTouchStart(e) {
+        e.preventDefault(); // Prevent default browser behavior
+        const target = e.target.closest('.card'); // Ensure the event targets a card
+        if (!target) return;
+
+        // clean up any previous ghost element
+        if (ghostElement) {
+            ghostElement.remove();
+            ghostElement = null;
+        }
+
+        // Store the dragged card's audio data
+        draggedAudio = target.dataset.audio;
+
+        // Create a ghost element as a visual cue
+        ghostElement = target.cloneNode(true);
+        ghostElement.style.position = 'absolute';
+        ghostElement.style.pointerEvents = 'none';
+        ghostElement.style.opacity = '0.7';
+        ghostElement.style.zIndex = '1000';
+        document.body.appendChild(ghostElement);
+
+        // Position the ghost element at the touch point
+        const touch = e.touches[0];
+        ghostElement.style.left = `${touch.clientX}px`;
+        ghostElement.style.top = `${touch.clientY}px`;
+    }
+
+    // Function to handle touch move event
+
+    function handleTouchMove(e) {
+        if (!ghostElement) return;
+
+        e.preventDefault(); // Prevent scrolling while dragging
+        const touch = e.touches[0];
+
+        // Move the ghost element with the user's finger
+        ghostElement.style.left = `${touch.clientX}px`;
+        ghostElement.style.top = `${touch.clientY}px`;
+
+        // Add a visual cue to the workspace
+        workspace.classList.add('drag-over');
+    }
+
+    // Function to handle touch end event
+
+    async function handleTouchEnd(e) {
+        if (!draggedAudio || !ghostElement) return;
+
+        e.preventDefault(); // Prevent default behavior
+        workspace.classList.remove('drag-over'); // Remove visual cue
+
+        const touch = e.changedTouches[0];
+        const dropTarget = document.elementFromPoint(touch.clientX, touch.clientY);
+
+        // Check if the drop target is the workspace
+        if (dropTarget === workspace || workspace.contains(dropTarget)) {
+            // Simulate drop functionality
+            handleDrop({
+                preventDefault: () => { }, // Mock preventDefault
+                dataTransfer: {
+                    getData: () => draggedAudio, // Provide the dragged audio data
+                },
+            });
+        }
+
+        // Clean up
+        ghostElement.remove();
+        ghostElement = null;
+        draggedAudio = null;
+    }
+
+
 
 
     function handleDragStart(e) {
@@ -390,19 +476,20 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         // Play button functionality
         trackElement.querySelector('.play-btn').addEventListener('click', () => {
-           if (player.loaded){ 
-            // Apply settings
-            player.loopStart = parseFloat(trackElement.querySelector('.loop-start').value);
-            player.loopEnd = parseFloat(trackElement.querySelector('.loop-end').value);
-            player.reverse = trackElement.querySelector('.reverse-checkbox').checked;
-            trackChannel.mute = trackElement.querySelector('.mute-checkbox').checked;
+            if (player.loaded) {
+                // Apply settings
+                player.loopStart = parseFloat(trackElement.querySelector('.loop-start').value);
+                player.loopEnd = parseFloat(trackElement.querySelector('.loop-end').value);
+                player.reverse = trackElement.querySelector('.reverse-checkbox').checked;
+                trackChannel.mute = trackElement.querySelector('.mute-checkbox').checked;
 
-            const volume = parseFloat(trackElement.querySelector('.volume-slider').value);
-            trackChannel.volume.value = volume;
+                const volume = parseFloat(trackElement.querySelector('.volume-slider').value);
+                trackChannel.volume.value = volume;
 
-            // Start playing
-            player.start();}
-            else{
+                // Start playing
+                player.start();
+            }
+            else {
                 console.warn('Track is not fully loaded yet.');
             }
         });
@@ -413,10 +500,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         // Stop button functionality
         trackElement.querySelector('.stop-btn').addEventListener('click', () => {
-            if(player.state === 'started') {
-            player.stop();
+            if (player.state === 'started') {
+                player.stop();
             }
-            else{
+            else {
                 console.warn('Track is not playing.');
             }
         });
@@ -843,6 +930,20 @@ document.addEventListener('DOMContentLoaded', async () => {
             progressBar.style.width = '0%'; // Reset progress bar
         }, duration * 1000);
     }
+
+    document.addEventListener('touchstart', (e) => {
+        const target = e.target;
+    
+        // If the touch is not on a valid card or the workspace, clean up the ghost element
+        if (!target.closest('.card') && target !== workspace && !workspace.contains(target)) {
+            if (ghostElement) {
+                ghostElement.remove();
+                ghostElement = null;
+                draggedAudio = null;
+            }
+        }
+    });
+    
 
 });
 
