@@ -1,5 +1,5 @@
 # SoundScapers
-Individual capstone project. 
+
 <!-- Improved compatibility of back to top link: See: https://github.com/othneildrew/Best-README-Template/pull/73 -->
 <a id="readme-top"></a>
 <!--
@@ -12,43 +12,32 @@ Individual capstone project.
 
 
 
-<!-- PROJECT SHIELDS -->
-<!--
-*** I'm using markdown "reference style" links for readability.
-*** Reference links are enclosed in brackets [ ] instead of parentheses ( ).
-*** See the bottom of this document for the declaration of the reference variables
-*** for contributors-url, forks-url, etc. This is an optional, concise syntax you may use.
-*** https://www.markdownguide.org/basic-syntax/#reference-style-links
--->
-[![Contributors][contributors-shield]][contributors-url]
-[![Forks][forks-shield]][forks-url]
-[![Stargazers][stars-shield]][stars-url]
-[![Issues][issues-shield]][issues-url]
-[![project_license][license-shield]][license-url]
-[![LinkedIn][linkedin-shield]][linkedin-url]
-
-
-
-<!-- PROJECT LOGO -->
-<br />
-<div align="center">
-  <a href="https://github.com/github_username/repo_name">
-    <img src="images/logo.png" alt="Logo" width="80" height="80">
-  </a>
-
-<h3 align="center">project_title</h3>
+<h3 align="center">SoundScapers</h3>
 
   <p align="center">
-    project_description
+    
+
+    A soundscape is a sound or combination of sounds that forms or arises from an immersive environment.  
+    
+    This application is a very simple audio editing system for creating loops that are just that, Soundscapes!
+
+    Once you have created a user account, you can get too making noise from your home page by clicking the "Soundboard" button.
+
+    You can add audio tracks to a mixer within your Sound Board ("workspace") and then save , update and delete as you please.
+
+    If you wish to load a soundboard you can do so from the drop down menu on the soundboard page, or click view directly from the homepage!
+
+    Make changes , click save again and voila! 
+
+    If you have made a sound you want to keep and share with your friends, set a duration in the mixer and click download to get your own wav straight to your device.
+    
+    
+    
     <br />
-    <a href="https://github.com/github_username/repo_name"><strong>Explore the docs »</strong></a>
+    <a href="https://github.com/MarshallJD1/SoundScapers"><strong>Explore the docs »</strong></a>
     <br />
     <br />
-    <a href="https://github.com/github_username/repo_name">View Demo</a>
-    &middot;
-    <a href="https://github.com/github_username/repo_name/issues/new?labels=bug&template=bug-report---.md">Report Bug</a>
-    &middot;
-    <a href="https://github.com/github_username/repo_name/issues/new?labels=enhancement&template=feature-request---.md">Request Feature</a>
+   
   </p>
 </div>
 
