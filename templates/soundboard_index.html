@@ -9,32 +9,40 @@
 
 {% block content %}
   <div class="container-fluid h-100">
+    <div class="row">
+      <div id="status-message" class="status-container">
+        <p id="status-text" class="text-danger">
+            Tap your choice of audio from the left pane and then tap on the workspace to add the track! - Tap here if you need to clear your selection!
+        </p>
+      </div>
+    </div>
     <div class="row flex-grow-1">
       <div class="col-3" id="side-pane">
         <h4>Audio Library</h4>
-        <div class="card" draggable="true" data-audio="{% static 'audio/fireloop.wav' %}">
-          <div class="card-body">Camp Fire</div>
+        <div class="card" draggable="true" data-audio="{% static 'audio/Fire.wav' %}">
+          <div class="card-body">Fire</div>
         </div>
-        <div class="card" draggable="true" data-audio="{% static 'audio/river.wav' %}">
+        <div class="card" draggable="true" data-audio="{% static 'audio/River.wav' %}">
           <div class="card-body">River</div>
         </div>
-        <div class="card" draggable="true" data-audio="{% static 'audio/wind.wav' %}">
+        <div class="card" draggable="true" data-audio="{% static 'audio/Wind.wav' %}">
           <div class="card-body">Wind</div>
         </div>
-        <div class="card" draggable="true" data-audio="{% static 'audio/wind.wav' %}">
+        <div class="card" draggable="true" data-audio="{% static 'audio/Outdoor_Raining.wav' %}">
           <div class="card-body">Outdoor Raining</div>
         </div>
-        <div class="card" draggable="true" data-audio="{% static 'audio/indoor_raining.wav' %}">
+        <div class="card" draggable="true" data-audio="{% static 'audio/Indoor_Raining.wav' %}">
           <div class="card-body">Indoor Raining</div>
         </div>
-        <div class="card" draggable="true" data-audio="{% static 'audio/spooky_forrest.wav' %}">
+        <div class="card" draggable="true" data-audio="{% static 'audio/Spooky.wav' %}">
           <div class="card-body">Spooky</div>
         </div>
       </div>
       <input type="hidden" id="soundboard_id" value="{{ soundboard_id }}">
-      <div class="col-9 bg-light" id="workspace">
+      <div class="col-9 bg-light" id="workspace" >
       <h5>Soundboard Workspace</h5>
       
+            
     </div>
     </div>
     
