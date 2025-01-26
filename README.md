@@ -19,18 +19,10 @@
 
     A soundscape is a sound or combination of sounds that forms or arises from an immersive environment.  
     
-    This application is a very simple audio editing system for creating loops that are just that, Soundscapes!
+    This application is a very simple audio editing system for creating loops that are just that,
+    Soundscapes!
 
-    Once you have created a user account, you can get too making noise from your home page by clicking the "Soundboard" button.
-
-    You can add audio tracks to a mixer within your Sound Board ("workspace") and then save , update and delete as you please.
-
-    If you wish to load a soundboard you can do so from the drop down menu on the soundboard page, or click view directly from the homepage!
-
-    Make changes , click save again and voila! 
-
-    If you have made a sound you want to keep and share with your friends, set a duration in the mixer and click download to get your own wav straight to your device.
-    
+     
        
  
   </p>
@@ -46,13 +38,6 @@
       <a href="#about-the-project">About The Project</a>
       <ul>
         <li><a href="#built-with">Built With</a></li>
-      </ul>
-    </li>
-    <li>
-      <a href="#getting-started">Getting Started</a>
-      <ul>
-        <li><a href="#prerequisites">Prerequisites</a></li>
-        <li><a href="#installation">Installation</a></li>
       </ul>
     </li>
     <li><a href="#usage">Usage</a></li>
@@ -71,7 +56,25 @@
 
 [![Product Name Screen Shot][product-screenshot]](https://example.com)
 
-Here's a blank template to get started. To avoid retyping too much info, do a search and replace with your text editor for the following: `github_username`, `repo_name`, `twitter_handle`, `linkedin_username`, `email_client`, `email`, `project_title`, `project_description`, `project_license`
+The project was originally created for my final submission to a 16 week coding programme.
+The idea was a free to use and easy to interact with, audio playground.
+A virtual area where a user can go to create some noise and save what they make.
+
+There will be screenshots and instructions on usage belore in the usage section.
+
+Once you have created a user account,
+you can get too making noise from your home page by clicking the "Soundboard" button.
+
+You can add audio tracks to a mixer within your Sound Board ("workspace") and then save,
+update and delete as you please.
+
+If you wish to load a soundboard you can do so from the drop down menu on the soundboard page,
+or click view directly from the homepage!
+
+Make changes , click save again and voila! 
+
+If you have made a sound you want to keep and share with your friends, 
+ set a duration in the mixer and click download to get your own wav straight to your device.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -79,64 +82,86 @@ Here's a blank template to get started. To avoid retyping too much info, do a se
 
 ### Built With
 
-* [![Next][Next.js]][Next-url]
-* [![React][React.js]][React-url]
-* [![Vue][Vue.js]][Vue-url]
-* [![Angular][Angular.io]][Angular-url]
-* [![Svelte][Svelte.dev]][Svelte-url]
-* [![Laravel][Laravel.com]][Laravel-url]
-* [![Bootstrap][Bootstrap.com]][Bootstrap-url]
-* [![JQuery][JQuery.com]][JQuery-url]
+Django 
+JS
+Python
+Tone.js
+
+
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 
+Prerequisites and installation 
 
-<!-- GETTING STARTED -->
-## Getting Started
+If you would like to run this locally,clone this repo and check the requirements.txt in the files above for all the dependancies.
+You can run all of those via npm install.
 
-This is an example of how you may give instructions on setting up your project locally.
-To get a local copy up and running follow these simple example steps.
+Tone.js is installed via the json.package - you will find that the application will work without it as cdn deliver is 
+use din the index - this is for future features where the cdn will be too big a load.
 
-### Prerequisites
 
-This is an example of how to list things you need to use the software and how to install them.
-* npm
-  ```sh
-  npm install npm@latest -g
-  ```
-
-### Installation
-
-1. Get a free API Key at [https://example.com](https://example.com)
-2. Clone the repo
-   ```sh
-   git clone https://github.com/github_username/repo_name.git
-   ```
-3. Install NPM packages
-   ```sh
-   npm install
-   ```
-4. Enter your API in `config.js`
-   ```js
-   const API_KEY = 'ENTER YOUR API';
-   ```
-5. Change git remote url to avoid accidental pushes to base project
-   ```sh
-   git remote set-url origin github_username/repo_name
-   git remote -v # confirm the changes
-   ```
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 
 
 <!-- USAGE EXAMPLES -->
 ## Usage
 
-Use this space to show useful examples of how a project can be used. Additional screenshots, code examples and demos work well in this space. You may also link to more resources.
+Sign up -
 
-_For more examples, please refer to the [Documentation](https://example.com)_
+Log in -
+
+Home area -
+
+Here is where all the users soundboards will be shown for easy loading.
+Clicking on a soundboard here will load it in the workspace for the user.
+
+Soundboard area -
+
+Here is the empty workspace!
+
+
+Here the user can select audio to add to the workspace! 
+Drag and drop on PC. 
+Tap the audio then the workspace to apply on touch devices.
+
+A mixer will be created with the selected track, any track added after this will add to the mixer.
+
+To cancel an audio card selection, tap the red text. 
+
+Here a user can set a title and a description for their soundboard.
+
+Click 'Save Soundboard' to save!
+
+This will now be at the users home page.
+
+You can also load soundboards the user has created with the drop down menu and the 'Load Soundboard' button.
+
+Click the 'Clear Workspace' button to clear the mixer and all the tracks and start a fresh.
+
+
+A Mixer has Master panning , volume and a duration box( with a max of 30 seconds). 
+The record button will play all active tracks ina mixer with the given settings for the duration and do a live runthrough.
+A loading bar will be visible to show progress.
+There is also a play/pause button to play all the active tracks.
+
+A track has many options much like the master, but a few extra for actual audio alteration. 
+
+play - plays audio file
+stop - stops audio file
+Active - Check box to set if the track is active
+solo - Solos the track
+mute - Mutes the track
+Pitch - Slider to alter pitch 
+Panning - slider to alter panning for stereo
+reverse - check box to reverse track
+Loop - checkbox for looping 
+Loop start - Start of loop
+Loop end - End of loop
+Lock loop points - check box to lock loop markers
+Waveform - Displays waveform on timeline - 1st click sets start and second sets end
+
+
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -145,12 +170,13 @@ _For more examples, please refer to the [Documentation](https://example.com)_
 <!-- ROADMAP -->
 ## Roadmap
 
-- [ ] Feature 1
-- [ ] Feature 2
-- [ ] Feature 3
-    - [ ] Nested Feature
+- [v1.1] Ability to add own personal audio files into the workspace.
+- [v1.2] Take live feed recordings, turn them into cards that can then be altered in the mixe.
+- [v1.3] Add in a Feed that users can share, comment on and rate eachothers creations.
+- [v1.4] Ability to copy soundboards from the feed into own workspace and alter.
+    
 
-See the [open issues](https://github.com/github_username/repo_name/issues) for a full list of proposed features (and known issues).
+
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -159,10 +185,8 @@ See the [open issues](https://github.com/github_username/repo_name/issues) for a
 <!-- CONTRIBUTING -->
 ## Contributing
 
-Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
-
-If you have a suggestion that would make this better, please fork the repo and create a pull request. You can also simply open an issue with the tag "enhancement".
-Don't forget to give the project a star! Thanks again!
+Any Contributions to this project would be greatly appreciated, no matter how big or small! 
+If you would like to add in a feature that you have been working on by all means follow the steps below and get coding!
 
 1. Fork the Project
 2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
@@ -172,18 +196,33 @@ Don't forget to give the project a star! Thanks again!
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-### Top contributors:
-
-<a href="https://github.com/github_username/repo_name/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=github_username/repo_name" alt="contrib.rocks image" />
-</a>
 
 
 
 <!-- LICENSE -->
 ## License
 
-Distributed under the project_license. See `LICENSE.txt` for more information.
+MIT License
+
+Copyright (c) [2025] [James Marshall]
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -192,9 +231,8 @@ Distributed under the project_license. See `LICENSE.txt` for more information.
 <!-- CONTACT -->
 ## Contact
 
-Your Name - [@twitter_handle](https://twitter.com/twitter_handle) - email@email_client.com
+James Marshall - MarshallJD1 - MarshallJD1@gmail.com
 
-Project Link: [https://github.com/github_username/repo_name](https://github.com/github_username/repo_name)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -203,42 +241,23 @@ Project Link: [https://github.com/github_username/repo_name](https://github.com/
 <!-- ACKNOWLEDGMENTS -->
 ## Acknowledgments
 
-* []()
-* []()
-* []()
+AI Usage :  
+Chatgpt(mostly within vscode) has been used throughout the project as a guidance tool, 
+as I have been dealing with languages that are new to me and frameworks i haven't worked with long.
+
+I have used Ai for helping populate data for testing, bouncing ideas to problems and helping to explain parts of 
+syntax/code that needed furth explination.
+
+AI hs a tendancy when asking it to provide code to miss context in your code, add their own context or flair, and sometimes miss out key elements.
+With this in mind, the process of getting help from AI with coding ( or atleast my experience with this project) is highly useful as a learning tool,
+but should not be used to write code for you .
+
+When given too big a request or a rquest that is not utterly precise, problems would occur where important parts of code would be overlooked. 
+The best approach i have found with this project and using ai , is to keep it as a helper and scrutinise all the suggestions.
+
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 
 
-<!-- MARKDOWN LINKS & IMAGES -->
-<!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
-[contributors-shield]: https://img.shields.io/github/contributors/github_username/repo_name.svg?style=for-the-badge
-[contributors-url]: https://github.com/github_username/repo_name/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/github_username/repo_name.svg?style=for-the-badge
-[forks-url]: https://github.com/github_username/repo_name/network/members
-[stars-shield]: https://img.shields.io/github/stars/github_username/repo_name.svg?style=for-the-badge
-[stars-url]: https://github.com/github_username/repo_name/stargazers
-[issues-shield]: https://img.shields.io/github/issues/github_username/repo_name.svg?style=for-the-badge
-[issues-url]: https://github.com/github_username/repo_name/issues
-[license-shield]: https://img.shields.io/github/license/github_username/repo_name.svg?style=for-the-badge
-[license-url]: https://github.com/github_username/repo_name/blob/master/LICENSE.txt
-[linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
-[linkedin-url]: https://linkedin.com/in/linkedin_username
-[product-screenshot]: images/screenshot.png
-[Next.js]: https://img.shields.io/badge/next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white
-[Next-url]: https://nextjs.org/
-[React.js]: https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB
-[React-url]: https://reactjs.org/
-[Vue.js]: https://img.shields.io/badge/Vue.js-35495E?style=for-the-badge&logo=vuedotjs&logoColor=4FC08D
-[Vue-url]: https://vuejs.org/
-[Angular.io]: https://img.shields.io/badge/Angular-DD0031?style=for-the-badge&logo=angular&logoColor=white
-[Angular-url]: https://angular.io/
-[Svelte.dev]: https://img.shields.io/badge/Svelte-4A4A55?style=for-the-badge&logo=svelte&logoColor=FF3E00
-[Svelte-url]: https://svelte.dev/
-[Laravel.com]: https://img.shields.io/badge/Laravel-FF2D20?style=for-the-badge&logo=laravel&logoColor=white
-[Laravel-url]: https://laravel.com
-[Bootstrap.com]: https://img.shields.io/badge/Bootstrap-563D7C?style=for-the-badge&logo=bootstrap&logoColor=white
-[Bootstrap-url]: https://getbootstrap.com
-[JQuery.com]: https://img.shields.io/badge/jQuery-0769AD?style=for-the-badge&logo=jquery&logoColor=white
-[JQuery-url]: https://jquery.com 
+
