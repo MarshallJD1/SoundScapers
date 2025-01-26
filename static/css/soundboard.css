@@ -138,11 +138,12 @@
 }
 
 /* Styling for the Workspace */
-.workspace {
-    min-height: 300px; /* Or any appropriate height */
-    border: 2px dashed #ccc; /* Optional: Visual indicator for debugging */
-    padding: 10px; /* Ensure content inside has some spacing */
-    background-color: #f8f9fa; /* Optional: Light background to distinguish */
+#workspace {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    margin-top: 20px;
+    background: #45a049;
 }
 
 /* Tooltip styling */
@@ -165,19 +166,3 @@
     display: none;
 }   
 
-/* Status Container Styling */
-.status-container {
-    border: 1px solid red;
-    padding: 10px;
-    margin: 10px 0;
-    border-radius: 8px;
-    background-color: #fff5f5;
-    text-align: center;
-}
-
-.text-danger {
-    color: red;
-    font-size: 14px;
-    margin: 0;
-    cursor: pointer; /* Makes it clear the text is clickable */
-}
