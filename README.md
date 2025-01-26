@@ -31,13 +31,8 @@
 
     If you have made a sound you want to keep and share with your friends, set a duration in the mixer and click download to get your own wav straight to your device.
     
-    
-    
-    <br />
-    <a href="https://github.com/MarshallJD1/SoundScapers"><strong>Explore the docs »</strong></a>
-    <br />
-    <br />
-   
+       
+ 
   </p>
 </div>
 
