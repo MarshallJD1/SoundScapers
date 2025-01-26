@@ -15,3 +15,13 @@ class UserCreationForm(UserCreationForm):
         if commit:
             user.save()
         return user
+
+
+class PasswordResetViaEmailForm(forms.Form):
+    email = forms.EmailField(label='Email')
+
+    def clean_email(self):
+        email = self.cleaned_data['email']
+        if not User.objects.filter(email=email).exists():
+            raise forms.ValidationError('No user with this email address')
+        return email
