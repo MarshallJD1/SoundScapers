@@ -1,6 +1,7 @@
 document.addEventListener('DOMContentLoaded', async () => {
     const workspace = document.getElementById('workspace');
     const cards = document.querySelectorAll('.card');
+    const statusText = document.getElementById('status-text'); // Status message element
     let soundboardsFetched = false;
     let currentSoundboardId = document.getElementById('soundboard_id').value;
     let tracks = [];
@@ -111,6 +112,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         // Store the dragged card's audio data
         draggedAudio = target.dataset.audio;
+        audioFileName = draggedAudio.split('/').pop().split('.')[0];
+        updateStatusMessage(audioFileName);
 
         // Create a ghost element as a visual cue
         ghostElement = target.cloneNode(true);
@@ -162,12 +165,31 @@ document.addEventListener('DOMContentLoaded', async () => {
                     getData: () => draggedAudio, // Provide the dragged audio data
                 },
             });
+
+            // Update the status message
+            updateStatusMessage();
         }
 
         // Clean up
         ghostElement.remove();
         ghostElement = null;
         draggedAudio = null;
+    }
+
+    //update the status text
+
+    function updateStatusMessage(audioFileName = null) {
+        if (audioFileName) {
+            statusText.innerHTML = `
+                You have currently selected <strong>${audioFileName}</strong>.
+                Tap the workspace to add the track to the mixer - or <span class="clear-selection">tap here</span> to clear your selection!
+            `;
+        } else {
+            statusText.innerHTML = `
+                Tap your choice of audio card and then tap the workspace to add the track! - 
+                <span class="clear-selection">Tap here</span> if you need to clear your selection!
+            `;
+        }
     }
 
 
@@ -943,6 +965,21 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         }
     });
+
+    statusText.addEventListener('click', (e) => {
+        if (e.target.classList.contains('clear-selection')) {
+            // Clear the selection and update the status message
+            draggedAudio = null;
+            if (ghostElement) {
+                ghostElement.remove();
+                ghostElement = null;
+            }
+            updateStatusMessage(); // Reset the status message
+        }
+    });
+    
+
+
     
 
 });
