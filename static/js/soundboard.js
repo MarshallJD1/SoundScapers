@@ -11,14 +11,18 @@ document.addEventListener('DOMContentLoaded', async () => {
         const startAudioContext = async () => {
             if (!Tone.context.state || Tone.context.state !== 'running') {
                 await Tone.start();
-                console.log('Tone.js audio context started');
+                //console.log('Tone.js audio context started');
             }
             document.removeEventListener('click', startAudioContext);
             document.removeEventListener('keydown', startAudioContext);
+            document.removeEventListener('touchstart', startAudioContext);
+            cards.forEach(card => card.removeEventListener('click', startAudioContext));
         };
 
         document.addEventListener('click', startAudioContext);
         document.addEventListener('keydown', startAudioContext);
+        document.addEventListener('touchstart', startAudioContext);
+        cards.forEach(card => card.addEventListener('click', startAudioContext));
     }
 
     // Call the function to start the audio context on interaction
@@ -211,7 +215,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         // Start the Tone.js context if it hasn't already started
         if (!Tone.context.state || Tone.context.state !== 'running') {
             await Tone.start();
-            console.log('Tone.js audio context started');
+            //console.log('Tone.js audio context started');
         }
 
         const audioFile = e.dataTransfer.getData('text/plain');
@@ -268,7 +272,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         mixer.querySelector('.master-volume').addEventListener('input', (e) => {
             const masterVolume = parseFloat(e.target.value);
             masterChannel.volume.value = masterVolume;
-            console.log(`Master volume set to: ${masterVolume}`);
+            //console.log(`Master volume set to: ${masterVolume}`);
 
             // Update all tracks' effective volume
             tracks.forEach(({ trackChannel, trackElement }) => {
@@ -282,7 +286,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         mixer.querySelector('.master-pan').addEventListener('input', (e) => {
             const pan = parseFloat(e.target.value);
             masterChannel.pan.value = pan;
-            console.log(`Master pan set to: ${pan}`);
+            //console.log(`Master pan set to: ${pan}`);
         });
 
 
@@ -305,9 +309,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                             try {
                                 const url = trackElement.getAttribute('data-file-url');
                                 if (url) {
-                                    console.log(`Loading player with URL: ${url}`);
+                                    //console.log(`Loading player with URL: ${url}`);
                                     const buffer = new Tone.Buffer(url, () => {
-                                        console.log('Buffer loaded successfully:', buffer);
+                                        //console.log('Buffer loaded successfully:', buffer);
                                         player.buffer = buffer;
                                         player.start();
                                     }, (error) => {
@@ -358,7 +362,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         Tone.Transport.loopStart = 0;
         Tone.Transport.loopEnd = duration;
         Tone.Transport.loop = true;
-        console.log(`Master timeline set to loop for ${duration} seconds`);
+        //console.log(`Master timeline set to loop for ${duration} seconds`);
     }
 
 
@@ -493,7 +497,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const masterVolume = masterChannel.volume.value; // Get current master volume
             const trackVolume = parseFloat(e.target.value); // Track slider value
             trackChannel.volume.value = trackVolume + masterVolume; // Combine volumes
-            console.log(`Track volume set to: ${trackChannel.volume.value}`);
+            //console.log(`Track volume set to: ${trackChannel.volume.value}`);
         });
 
         // Play button functionality
@@ -617,7 +621,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const description = document.getElementById('description').value;
         const privacy = document.getElementById('privacy-toggle').value;
         const soundboardId = document.getElementById('soundboard_id').value;
-        console.log('Saving soundboard with ID:', soundboardId); // Added this line
+        
         const tracks = [];
 
         document.querySelectorAll('.track').forEach(trackElement => {
@@ -638,7 +642,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             tracks.push(trackData);
         });
 
-        console.log('Collected tracks data:', tracks);
+        //console.log('Collected tracks data:', tracks);
 
 
 
@@ -673,6 +677,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         document.getElementById('soundboard_id').value = data.soundboard_id;
                         currentSoundboardId = data.soundboard_id;
                     }
+                    location.reload(); // Force page refresh to update soundboard dropdown
                 } else {
                     alert('Failed to save soundboard.');
                 }
@@ -754,7 +759,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Function to update the UI with the loaded soundboard data
     function updateUIWithSoundboard(soundboardData) {
-        console.log('Soundboard data:', soundboardData);
+        //console.log('Soundboard data:', soundboardData);
 
         if (!soundboardData) {
             alert('No soundboard data available.');
@@ -764,7 +769,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         // Set the soundboard ID
         document.getElementById('soundboard_id').value = soundboardData.id;
         currentSoundboardId = soundboardData.id;
-        console.log('Current soundboard ID set to:', currentSoundboardId);
+        //console.log('Current soundboard ID set to:', currentSoundboardId);
 
         // Clear the workspace and dispose of any existing players/channels
         const workspace = document.getElementById('workspace');
@@ -813,14 +818,14 @@ document.addEventListener('DOMContentLoaded', async () => {
 
                 // Load the player buffer
                 player.load(trackData.file_url).then(() => {
-                    console.log('Buffer loaded for track: ${trackData.name}');
+                    //console.log('Buffer loaded for track: ${trackData.name}');
                 }).catch(error => {
                     console.error('Error loading bufferfor track: ${trackData.name}', error);
                 });
                 tracks.push({ player, trackChannel, trackElement });
             });
         } else {
-            console.log('No tracks to display.');
+            //console.log('No tracks to display.');
             const noTracksMessage = document.createElement('p');
             noTracksMessage.textContent = 'No tracks available in this soundboard.';
             workspace.appendChild(noTracksMessage);
@@ -830,7 +835,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // functionality for user to delete a soundboard
     document.getElementById('delete-soundboard-btn').addEventListener('click', () => {
         const soundboardId = document.getElementById('soundboard_dropdown').value;
-        console.log('Deleting soundboard:', soundboardId);
+        //console.log('Deleting soundboard:', soundboardId);
 
         if (!soundboardId) {
             alert('No soundboard to delete');
@@ -896,9 +901,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                     try {
                         const url = trackElement.getAttribute('data-file-url');
                         if (url) {
-                            console.log(`Loading player with URL: ${url}`);
+                            //console.log(`Loading player with URL: ${url}`);
                             const buffer = new Tone.Buffer(url, () => {
-                                console.log('Buffer loaded successfully:', buffer);
+                                //console.log('Buffer loaded successfully:', buffer);
                                 player.buffer = buffer;
                                 player.start();
                             }, (error) => {
