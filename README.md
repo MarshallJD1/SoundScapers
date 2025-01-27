@@ -141,7 +141,8 @@ Feed capabilities and the ability to share eachothers boards , comment and rate 
 I have used the w3c validator for html and css.
 ![Css Validation](media/readme_images/app_cssvalidation.png)
 ![HTML Errors](media/readme_images/app_htmltest.png) 
-I could not find the above tags whilst trying to clean up and fix some things for validation, this will be looked at in more depth later down the line.
+These where fixed by altering the way django had generated a form , by overiding it with my own template.
+![HTML Fixed](media/readme_images/app_fixvalidation.png)
 
 I have checked light house for perfromance and best practices etc. 
 ![Lighthouse tests pre error fix](media/readme_images/app_lighthousetests.png)
