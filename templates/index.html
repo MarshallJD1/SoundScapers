@@ -2,10 +2,13 @@
 {% load static %}
 {% block title %}Homepage{% endblock %}
 
-
+{% block custom_styles %}
+<link rel="stylesheet" href="{% static 'css/index.css' %}">
+{% endblock %}
 
 {% block content %}
-<div class="container-fluid h-100">
+<div class="row" id="index" >
+<div class="container-fluid h-100" >
   {% if user.is_authenticated %}
   <h1 class="mt-4">Hello there, {{ user.username }}!</h1>
   <div class="row mt-3">
@@ -26,6 +29,7 @@
       </form>
     </div>
   </div>
+
   <h2 class="mt-4">Here are your soundboards:</h2>
   {% if soundboards %}
   <div class="row">
@@ -53,6 +57,13 @@
     </div>
   </div>
   {% endif %}
+</div>
+
+
+<footer class="footer">
+  <p class="text-center">SoundScapers 2024</p>
+  <p class="text-center">Created by <a href="www.github.com/MARSHALLJD1" rel="noopener noreferrer" target="_blank" >MarshallJD</a></p>
+</footer>
 </div>
 {% endblock %}
 
