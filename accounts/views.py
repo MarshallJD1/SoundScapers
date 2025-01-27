@@ -11,7 +11,7 @@ from django.utils.http import urlsafe_base64_encode
 from django.utils.encoding import force_bytes
 from django.template.loader import render_to_string
 from .forms import PasswordResetViaEmailForm
-
+from django.contrib.auth.views import PasswordChangeDoneView
 # Create your views here.
 
 class SignUpView(CreateView):
@@ -56,3 +56,6 @@ def password_reset_via_email(request):
     return render(request, 'registration/password_reset_form.html', {'form': password_reset_form})
 
 
+class CustomPasswordChangeView(PasswordChangeDoneView):
+    template_name = 'registration/password_change_form.html'
+    success_url = reverse_lazy('password_change_done')

@@ -10,7 +10,7 @@ urlpatterns = [
     path("password_reset_via_email/", password_reset_via_email, name="password_reset_via_email"),
     path("password_reset_done/", PasswordResetDoneView.as_view(), name="password_reset_done"),
     path("password_reset_confirm/<uidb64>/<token>/", PasswordResetConfirmView.as_view(), name="password_reset_confirm"),
-    path("password_change/", PasswordChangeView.as_view(), name="password_change"),
-    path("password_change_done/", PasswordChangeDoneView.as_view(), name="password_change_done"),
+    path("password_change/", PasswordChangeView.as_view(template_name='registration/password_change_form.html'), name="password_change"),
+    path("password_change_done/", PasswordChangeDoneView.as_view(template_name='registration/password_change_done.html'), name="password_change_done"),
 
 ]
