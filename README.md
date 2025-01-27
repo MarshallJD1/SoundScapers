@@ -140,12 +140,14 @@ Feed capabilities and the ability to share eachothers boards , comment and rate 
 
 I have used the w3c validator for html and css.
 ![Css Validation](media/readme_images/app_cssvalidation.png)
+![HTML Errors](media/readme_images/app_htmltest.png) 
+I could not find the above tags whilst trying to clean up and fix some things for validation, this will be looked at in more depth later down the line.
 
 I have checked light house for perfromance and best practices etc. 
 ![Lighthouse tests pre error fix](media/readme_images/app_lighthousetests.png)
 
-I found issues with missing html lang tags and the cdn use usage would cause crashes which have been fixed prior to testing.
 
+I found issues with missing html lang tags and the cdn usage which throw up un needed errors in validation.
 I have also used ([accessibilitychecker.org](https://www.accessibilitychecker.org/))
 
 <!-- ROADMAP -->
