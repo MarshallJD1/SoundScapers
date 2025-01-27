@@ -28,6 +28,12 @@ A soundscape is a sound or combination of sounds that forms or arises from an im
 
 Once you have created a user account, you can start making noise from your home page by clicking the "Soundboard" button. You can add audio tracks to a mixer within your Soundboard ("workspace") and then save, update, and delete as you please. If you wish to load a soundboard, you can do so from the drop-down menu on the soundboard page or click view directly from the homepage!
 
+Initially only had 5 static sounds to choose from , but with the scope to add many more features like : 
+
+Custom user uploads
+Bigger sound library
+Live sampling/recording
+
 Make changes, click save again, and voila! 
 If you have made a sound you want to keep and share with your friends, set a duration in the mixer and click download to get your own WAV file straight to your device.
 
