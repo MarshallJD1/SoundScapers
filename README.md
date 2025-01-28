@@ -14,6 +14,7 @@ Deployed Site :  (https://soundscapers-515cda02218b.herokuapp.com/)
   - [Prerequisites](#prerequisites)
   - [Installation](#installation)
 - [Usage](#usage)
+- [Testing](#testing)
 - [Roadmap](#roadmap)
 - [Contributing](#contributing)
 - [License](#license)
@@ -143,6 +144,25 @@ Feed capabilities and the ability to share eachothers boards , comment and rate 
 
 
 <!--Testing-->
+## Testing
+
+I have tested the log in and register/signup on all devices and seems to be working seemelessly.
+
+I had a problem with the soundboards not saving if multiple where made in one sessions . To fix this there is a page reload after a soundboard save.
+
+Touch drag and drop functionality could not get working to mimic the mouse drag and drop - To fix this on tap the audio is selected and on tap in the workspace
+it is added there.
+
+Had some teething issues with testing the recovery email system. Was an oversight from not adding in heroku back end logic.
+
+The same can be said about getting the login/sign in interaction witht he database working smoothly, all that had been missing was csrf tokens and setting up authentication logic .
+
+There was am early styling issue with  adding the tracks to the mixer, sorted by using bootstrap classes.
+
+Error wheen audio was attempted to be played when still loading , added in load buffer and signal to user - playing is also stopped until tracks loaded.
+
+Tone.start not initiating on touch screens , added in touch event listener - oversight. 
+
 
 I have used the w3c validator for html and css.
 ![Css Validation](media/readme_images/app_cssvalidation.png)
