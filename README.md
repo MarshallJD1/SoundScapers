@@ -13,6 +13,7 @@ Deployed Site :  (https://soundscapers-515cda02218b.herokuapp.com/)
 - [Getting Started](#getting-started)
   - [Prerequisites](#prerequisites)
   - [Installation](#installation)
+- [Planning and User Ux Design](#planning-and-User-Ux-Design)
 - [Usage](#usage)
 - [Testing](#testing)
 - [Roadmap](#roadmap)
@@ -123,7 +124,7 @@ A bar will show the progress and then a wav file will be added to your downloads
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-## Planning 
+## Planning and User Ux Design
 
 wire frames where used in ([balsamiq](https://www.balsamiq.com)) and ERD created with ([Lucid.app](https://www.lucid.app)).
 
@@ -134,7 +135,10 @@ wire frames where used in ([balsamiq](https://www.balsamiq.com)) and ERD created
 The soundboard was what took up most of the time creating in the 2 weeks we had, and it did end up quite suprisingly similair to how the end product came about. (End used loosely) 
 
 
-I used an agile workflow to get the project through the motions. Setting small precise tasks following my project board and many amounts of stickynotes across the screen. 
+I used an agile workflow to get the project through the motions. Setting small precise tasks following my project board and many amounts of stickynotes across the screen.
+Following the MoSCow workflow really helped with keeping the application manageable. 
+
+At first the scope was too large and had to re-arrange what waas needed for the mvp ( changed the concept of alot of the must haves , into could haves.)
 
 Projectboard: ([Project Board](https://github.com/users/MarshallJD1/projects/11/views/1))
 
