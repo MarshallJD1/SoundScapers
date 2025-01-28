@@ -13,6 +13,7 @@ Deployed Site :  (https://soundscapers-515cda02218b.herokuapp.com/)
 - [Getting Started](#getting-started)
   - [Prerequisites](#prerequisites)
   - [Installation](#installation)
+- [Planning and User Ux Design](#planning-and-User-Ux-Design)
 - [Usage](#usage)
 - [Testing](#testing)
 - [Roadmap](#roadmap)
@@ -123,7 +124,7 @@ A bar will show the progress and then a wav file will be added to your downloads
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-## Planning 
+## Planning and User Ux Design
 
 wire frames where used in ([balsamiq](https://www.balsamiq.com)) and ERD created with ([Lucid.app](https://www.lucid.app)).
 
